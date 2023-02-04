@@ -19,12 +19,6 @@ const booksData = [
 ];
 
 export class BooksAPI extends RESTDataSource {
-	// override baseURL = 'https://movies-api.example.com/';
-
-	// async getMovie(id): Promise<any> {
-	// 	return this.get(`movies/${encodeURIComponent(id)}`);
-	// }
-
 	async getBooks(): Promise<any[]> {
 		return await booksData;
 	}
