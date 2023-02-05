@@ -1,6 +1,5 @@
-import { MikroORM } from '@mikro-orm/core';
+import { Connection, EntityManager, IDatabaseDriver, MikroORM } from '@mikro-orm/core';
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
 import { loadFilesSync } from '@graphql-tools/load-files';
 import path from 'path';
 import { expressMiddleware } from '@apollo/server/express4';
@@ -10,10 +9,8 @@ import http from 'http';
 import express from 'express';
 
 import { __prod__ } from './constants';
-import { Post } from './entities/Post';
 import mikroConfig from './mikro-orm.config';
 import { resolvers } from './resolvers';
-import { BooksAPI } from './datasources/books';
 
 const main = async () => {
 	const orm = await MikroORM.init(mikroConfig);
@@ -27,12 +24,12 @@ const main = async () => {
 
 	interface MyContext {
 		dataSources: {
-			BooksAPI: BooksAPI;
+			em: EntityManager<IDatabaseDriver<Connection>>;
 		};
 	}
 
 	const server = new ApolloServer<MyContext>({
-		introspection: true,
+		introspection: !__prod__,
 		typeDefs,
 		resolvers,
 	});
@@ -50,7 +47,7 @@ const main = async () => {
 		expressMiddleware(server, {
 			context: async () => ({
 				dataSources: {
-					BooksAPI: new BooksAPI(),
+					em,
 				},
 			}),
 		}),
@@ -59,16 +56,6 @@ const main = async () => {
 	// Modified server startup
 	await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
 	console.log(`🚀 Server ready at http://localhost:4000/`);
-
-	// const { url } = await startStandaloneServer(server, {
-	// 	context: async () => ({
-	// 		dataSources: {
-	// 			BooksAPI: new BooksAPI(),
-	// 		},
-	// 	}),
-	// });
-
-	// console.log(`🚀  Server ready at: ${url}`);
 };
 
 main();
