@@ -19,17 +19,29 @@ export type Mutation = {
   __typename?: 'Mutation';
   addPost?: Maybe<Post>;
   deletePost?: Maybe<Scalars['Boolean']>;
+  login?: Maybe<Scalars['String']>;
+  register?: Maybe<User>;
   updatePost?: Maybe<Post>;
 };
 
 
 export type MutationAddPostArgs = {
-  title?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
 };
 
 
 export type MutationDeletePostArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationLoginArgs = {
+  inputs: UserInputs;
+};
+
+
+export type MutationRegisterArgs = {
+  inputs: UserInputs;
 };
 
 
@@ -48,6 +60,8 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
+  getUsers?: Maybe<Array<Maybe<User>>>;
+  me?: Maybe<User>;
   post?: Maybe<Post>;
   posts?: Maybe<Array<Maybe<Post>>>;
 };
@@ -60,6 +74,10 @@ export type QueryPostArgs = {
 export type User = {
   __typename?: 'User';
   id: Scalars['ID'];
+  username: Scalars['String'];
+};
+
+export type UserInputs = {
   password: Scalars['String'];
   username: Scalars['String'];
 };
@@ -141,6 +159,7 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   User: ResolverTypeWrapper<User>;
+  UserInputs: UserInputs;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -152,11 +171,14 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String'];
   User: User;
+  UserInputs: UserInputs;
 }>;
 
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  addPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, Partial<MutationAddPostArgs>>;
+  addPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationAddPostArgs, 'title'>>;
   deletePost?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
+  login?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
+  register?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
   updatePost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'id' | 'title'>>;
 }>;
 
@@ -169,13 +191,14 @@ export type PostResolvers<ContextType = MyContext, ParentType extends ResolversP
 }>;
 
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  getUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
   posts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
 }>;
 
 export type UserResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

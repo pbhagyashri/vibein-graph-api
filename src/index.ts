@@ -1,4 +1,4 @@
-import { Connection, EntityManager, IDatabaseDriver, MikroORM } from '@mikro-orm/core';
+import { MikroORM } from '@mikro-orm/core';
 import { ApolloServer } from '@apollo/server';
 import { loadFilesSync } from '@graphql-tools/load-files';
 import path from 'path';
@@ -7,10 +7,16 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import http from 'http';
 import express from 'express';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+import { createClient } from 'redis';
+import { expressjwt } from 'express-jwt';
 
 import { __prod__ } from './constants';
 import mikroConfig from './mikro-orm.config';
-import { resolvers } from './resolvers';
+import { postResolver } from './resolvers/post-resolver';
+import { userResolver } from './resolvers/user-resolver';
+import { MyContext } from './types';
 
 const main = async () => {
 	const orm = await MikroORM.init(mikroConfig);
@@ -18,42 +24,70 @@ const main = async () => {
 	await orm.getMigrator().up();
 
 	const app = express();
+
+	const RedisStore = connectRedis(session);
+	const redisClient = createClient();
+	redisClient.on('error', (err) => console.log('Redis Client Error', err));
+
+	app.use(
+		session({
+			name: 'qid',
+			store: new RedisStore({
+				client: redisClient,
+				disableTouch: true,
+			}),
+			cookie: {
+				maxAge: 20000, // 10 years
+				// maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+				httpOnly: true,
+				sameSite: 'lax', // csrf
+				secure: __prod__,
+			},
+			saveUninitialized: false,
+			secret: 'dghdgfhjfdhgdhjfjghfgd',
+			resave: false,
+		}),
+	);
+
+	app.use(
+		expressjwt({
+			secret: 'shhhhhhared-secret',
+			algorithms: ['HS256'],
+			credentialsRequired: false,
+		}),
+	);
+
 	const httpServer = http.createServer(app);
 	const { resolve, dirname, join } = path;
 	const typeDefs = loadFilesSync(join(resolve(dirname('')), './schema.graphql'));
 
-	interface MyContext {
-		dataSources: {
-			em: EntityManager<IDatabaseDriver<Connection>>;
-		};
-	}
-
 	const server = new ApolloServer<MyContext>({
 		introspection: !__prod__,
 		typeDefs,
-		resolvers,
+		resolvers: [postResolver, userResolver],
 	});
 
 	await server.start();
 
-	// Set up our Express middleware to handle CORS, body parsing,
-	// and our expressMiddleware function.
 	app.use(
 		'/',
-		cors<cors.CorsRequest>(),
+		cors<cors.CorsRequest>({
+			credentials: true,
+			origin: ['http://localhost:4000/'],
+		}),
 		bodyParser.json(),
-		// expressMiddleware accepts the same arguments:
-		// an Apollo Server instance and optional configuration options
 		expressMiddleware(server, {
-			context: async () => ({
+			context: async ({ req, res }) => ({
 				dataSources: {
 					em,
+					req,
+					res,
+					token: req.headers.authorization,
 				},
 			}),
 		}),
 	);
 
-	// Modified server startup
 	await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
 	console.log(`🚀 Server ready at http://localhost:4000/`);
 };
