@@ -1,7 +1,14 @@
-import { Connection, EntityManager, IDatabaseDriver } from '@mikro-orm/core';
+import { PostsAPI } from './datasources/posts';
 
 export interface MyContext {
 	dataSources: {
-		em: EntityManager<IDatabaseDriver<Connection>>;
+		postApi: PostsAPI;
 	};
 }
+
+export type Post = {
+	id: number;
+	title: string;
+	createdAt: string;
+	updatedAt: string;
+};

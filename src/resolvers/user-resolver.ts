@@ -58,7 +58,7 @@ export const userResolver: Resolvers = {
 			}
 			return user;
 		},
-		login: async (_, { inputs: { username, password } }, { dataSources: { em, req } }) => {
+		login: async (_, { inputs: { username, password } }, { dataSources: { em } }) => {
 			const user = await em.findOne(User, { username });
 			if (user) {
 				const valid = await argon2.verify(user?.password, password);

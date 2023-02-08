@@ -17,6 +17,7 @@ import mikroConfig from './mikro-orm.config';
 import { postResolver } from './resolvers/post-resolver';
 import { userResolver } from './resolvers/user-resolver';
 import { MyContext } from './types';
+import { PostsAPI } from './datasources/posts';
 
 const main = async () => {
 	const orm = await MikroORM.init(mikroConfig);
@@ -79,10 +80,10 @@ const main = async () => {
 		expressMiddleware(server, {
 			context: async ({ req, res }) => ({
 				dataSources: {
-					em,
 					req,
 					res,
 					token: req.headers.authorization,
+					postApi: new PostsAPI(em),
 				},
 			}),
 		}),
