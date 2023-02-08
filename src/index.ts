@@ -7,9 +7,9 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import http from 'http';
 import express from 'express';
-import session from 'express-session';
-import connectRedis from 'connect-redis';
-import { createClient } from 'redis';
+// import session from 'express-session';
+// import connectRedis from 'connect-redis';
+// import { createClient } from 'redis';
 import { expressjwt } from 'express-jwt';
 
 import { __prod__ } from './constants';
@@ -18,6 +18,7 @@ import { postResolver } from './resolvers/post-resolver';
 import { userResolver } from './resolvers/user-resolver';
 import { MyContext } from './types';
 import { PostsAPI } from './datasources/posts';
+import { UserAPI } from './datasources/user';
 
 const main = async () => {
 	const orm = await MikroORM.init(mikroConfig);
@@ -26,29 +27,29 @@ const main = async () => {
 
 	const app = express();
 
-	const RedisStore = connectRedis(session);
-	const redisClient = createClient();
-	redisClient.on('error', (err) => console.log('Redis Client Error', err));
+	// const RedisStore = connectRedis(session);
+	// const redisClient = createClient();
+	// redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
-	app.use(
-		session({
-			name: 'qid',
-			store: new RedisStore({
-				client: redisClient,
-				disableTouch: true,
-			}),
-			cookie: {
-				maxAge: 20000, // 10 years
-				// maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-				httpOnly: true,
-				sameSite: 'lax', // csrf
-				secure: __prod__,
-			},
-			saveUninitialized: false,
-			secret: 'dghdgfhjfdhgdhjfjghfgd',
-			resave: false,
-		}),
-	);
+	// app.use(
+	// 	session({
+	// 		name: 'qid',
+	// 		store: new RedisStore({
+	// 			client: redisClient,
+	// 			disableTouch: true,
+	// 		}),
+	// 		cookie: {
+	// 			// maxAge: 20000, // 10 years
+	// 			maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+	// 			httpOnly: true,
+	// 			sameSite: 'lax', // csrf
+	// 			secure: __prod__,
+	// 		},
+	// 		saveUninitialized: false,
+	// 		secret: 'dghdgfhjfdhgdhjfjghfgd',
+	// 		resave: false,
+	// 	}),
+	// );
 
 	app.use(
 		expressjwt({
@@ -80,10 +81,12 @@ const main = async () => {
 		expressMiddleware(server, {
 			context: async ({ req, res }) => ({
 				dataSources: {
+					em,
 					req,
 					res,
 					token: req.headers.authorization,
 					postApi: new PostsAPI(em),
+					userApi: new UserAPI(em, req, req.headers.authorization),
 				},
 			}),
 		}),

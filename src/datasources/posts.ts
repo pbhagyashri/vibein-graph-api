@@ -33,7 +33,7 @@ export class PostsAPI extends RESTDataSource {
 		return post;
 	}
 
-	async deletePost(id: number) {
+	async deletePost(id: number): Promise<boolean> {
 		try {
 			await this.em.nativeDelete(Post, { id });
 			return true;
