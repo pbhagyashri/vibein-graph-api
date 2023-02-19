@@ -1,5 +1,6 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { Connection, EntityManager, IDatabaseDriver, Loaded } from '@mikro-orm/core';
+import { Loaded } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/mysql';
 import { Request } from 'express';
 import { User } from '../entities/User';
 import jwt from 'jsonwebtoken';
@@ -7,11 +8,11 @@ import argon2 from 'argon2';
 import { GraphQLError } from 'graphql';
 
 export class UserAPI extends RESTDataSource {
-	em: EntityManager<IDatabaseDriver<Connection>>;
+	em: EntityManager;
 	token?: string;
 	req: Request | any;
 
-	constructor(em: EntityManager<IDatabaseDriver<Connection>>, req: Request | any, token?: string) {
+	constructor(em: EntityManager, req: Request | any, token?: string) {
 		super();
 		this.em = em;
 		this.token = token;
@@ -73,24 +74,22 @@ export class UserAPI extends RESTDataSource {
 			throw new GraphQLError('length must be greater than 3', {
 				extensions: {
 					code: 'BAD_USER_INPUT',
+					path: 'username',
 				},
 			});
 		}
 
 		const hashedPassword = await argon2.hash(password);
-		const user = this.em.create(User, { username, password: hashedPassword });
-		if (!user) {
-			throw new GraphQLError('Something went wrong, please try again', {
-				extensions: {
-					code: 'BAD_USER_INPUT',
-				},
-			});
-		}
-
+		let user;
 		try {
-			await this.em.persistAndFlush(user);
+			const result = await this.em
+				.createQueryBuilder(User)
+				.getKnexQuery()
+				.insert({ username: username, password: hashedPassword, created_at: new Date(), updated_at: new Date() })
+				.returning('*');
+			user = result[0];
 		} catch (error) {
-			if ((error.code = '23505' || error.detail.include('already exists'))) {
+			if (!!error) {
 				throw new GraphQLError('Username already exists', {
 					extensions: {
 						code: 'BAD_USER_INPUT',

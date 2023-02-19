@@ -1,10 +1,11 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { Connection, EntityManager, IDatabaseDriver, Loaded } from '@mikro-orm/core';
+import { Loaded } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/mysql';
 import { Post } from '../entities/Post';
 
 export class PostsAPI extends RESTDataSource {
-	em: EntityManager<IDatabaseDriver<Connection>>;
-	constructor(em: EntityManager<IDatabaseDriver<Connection>>) {
+	em: EntityManager;
+	constructor(em: EntityManager) {
 		super();
 		this.em = em;
 	}

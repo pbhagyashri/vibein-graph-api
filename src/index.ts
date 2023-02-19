@@ -7,10 +7,10 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import http from 'http';
 import express from 'express';
-// import session from 'express-session';
-// import connectRedis from 'connect-redis';
-// import { createClient } from 'redis';
-import { expressjwt } from 'express-jwt';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+import { createClient } from 'redis';
+// import { expressjwt } from 'express-jwt';
 
 import { __prod__ } from './constants';
 import mikroConfig from './mikro-orm.config';
@@ -19,45 +19,46 @@ import { userResolver } from './resolvers/user-resolver';
 import { MyContext } from './types';
 import { PostsAPI } from './datasources/posts';
 import { UserAPI } from './datasources/user';
+import { EntityManager } from '@mikro-orm/mysql';
 
 const main = async () => {
 	const orm = await MikroORM.init(mikroConfig);
-	const em = orm.em.fork();
+	const em = orm.em.fork() as EntityManager;
 	await orm.getMigrator().up();
 
 	const app = express();
 
-	// const RedisStore = connectRedis(session);
-	// const redisClient = createClient();
-	// redisClient.on('error', (err) => console.log('Redis Client Error', err));
-
-	// app.use(
-	// 	session({
-	// 		name: 'qid',
-	// 		store: new RedisStore({
-	// 			client: redisClient,
-	// 			disableTouch: true,
-	// 		}),
-	// 		cookie: {
-	// 			// maxAge: 20000, // 10 years
-	// 			maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-	// 			httpOnly: true,
-	// 			sameSite: 'lax', // csrf
-	// 			secure: __prod__,
-	// 		},
-	// 		saveUninitialized: false,
-	// 		secret: 'dghdgfhjfdhgdhjfjghfgd',
-	// 		resave: false,
-	// 	}),
-	// );
+	const RedisStore = connectRedis(session);
+	const redisClient = createClient({ url: 'redis://127.0.0.1:6379', legacyMode: true });
+	await redisClient.connect();
+	redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
 	app.use(
-		expressjwt({
-			secret: 'shhhhhhared-secret',
-			algorithms: ['HS256'],
-			credentialsRequired: false,
+		session({
+			name: 'qid',
+			store: new RedisStore({
+				client: redisClient,
+				disableTouch: true,
+			}),
+			cookie: {
+				maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+				httpOnly: true,
+				sameSite: 'lax', // csrf
+				secure: __prod__,
+			},
+			saveUninitialized: false,
+			secret: 'dghdgfhjfdhgdhjfjghfgd',
+			resave: false,
 		}),
 	);
+
+	// app.use(
+	// 	expressjwt({
+	// 		secret: 'shhhhhhared-secret',
+	// 		algorithms: ['HS256'],
+	// 		credentialsRequired: false,
+	// 	}),
+	// );
 
 	const httpServer = http.createServer(app);
 	const { resolve, dirname, join } = path;
@@ -75,13 +76,12 @@ const main = async () => {
 		'/',
 		cors<cors.CorsRequest>({
 			credentials: true,
-			origin: ['http://localhost:4000/'],
+			origin: ['http://localhost:4000', 'http://localhost:3000'],
 		}),
 		bodyParser.json(),
 		expressMiddleware(server, {
 			context: async ({ req, res }) => ({
 				dataSources: {
-					em,
 					req,
 					res,
 					token: req.headers.authorization,
