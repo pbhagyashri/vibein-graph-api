@@ -8,16 +8,10 @@ export const userResolver: Resolvers = {
 	},
 
 	Mutation: {
-		register: async (_, { inputs: { username, password } }, { dataSources: { userApi, req } }) => {
-			const user = await userApi.register(username, password);
+		register: async (_, { inputs: { username, password } }, { dataSources: { userApi } }) =>
+			await userApi.register(username, password),
 
-			return user;
-		},
-
-		login: async (_, { inputs: { username, password } }, { dataSources: { userApi, req } }) => {
-			const user = await userApi.login(username, password);
-
-			return user;
-		},
+		login: async (_, { inputs: { username, password } }, { dataSources: { userApi } }) =>
+			await userApi.login(username, password),
 	},
 };

@@ -27,12 +27,11 @@ export class UserAPI extends RESTDataSource {
 		if (!this.token) {
 			return null;
 		}
-		console.log('auth', this.req.auth);
-		const user = await this.em.findOne(User, { id: this.req.auth.sub });
-		return user;
+
+		return await this.em.findOne(User, { id: this.req.auth.sub });
 	}
 
-	async login(username: string, password: string): Promise<string> {
+	async login(username: string, password: string): Promise<String> {
 		const user = await this.em.findOne(User, { username });
 		if (user) {
 			const valid = await argon2.verify(user?.password, password);
@@ -45,12 +44,10 @@ export class UserAPI extends RESTDataSource {
 				});
 			}
 
-			const token = await jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
+			return jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
 				algorithm: 'HS256',
 				subject: `${user.id}`,
 			});
-
-			return token;
 		} else {
 			{
 				throw new GraphQLError("username doesn't exist", {

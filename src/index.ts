@@ -7,9 +7,6 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import http from 'http';
 import express from 'express';
-// import session from 'express-session';
-// import connectRedis from 'connect-redis';
-// import { createClient } from 'redis';
 import { expressjwt } from 'express-jwt';
 
 import { __prod__ } from './constants';
@@ -27,30 +24,6 @@ const main = async () => {
 	await orm.getMigrator().up();
 
 	const app = express();
-
-	// const RedisStore = connectRedis(session);
-	// const redisClient = createClient({ url: 'redis://127.0.0.1:6379', legacyMode: true });
-	// await redisClient.connect();
-	// redisClient.on('error', (err) => console.log('Redis Client Error', err));
-
-	// app.use(
-	// 	session({
-	// 		name: 'qid',
-	// 		store: new RedisStore({
-	// 			client: redisClient,
-	// 			disableTouch: true,
-	// 		}),
-	// 		cookie: {
-	// 			maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-	// 			httpOnly: true,
-	// 			sameSite: 'lax', // csrf
-	// 			secure: __prod__,
-	// 		},
-	// 		saveUninitialized: false,
-	// 		secret: 'dghdgfhjfdhgdhjfjghfgd',
-	// 		resave: false,
-	// 	}),
-	// );
 
 	app.use(
 		expressjwt({
