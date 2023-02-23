@@ -27,7 +27,7 @@ export class UserAPI extends RESTDataSource {
 		if (!this.token) {
 			return null;
 		}
-
+		console.log('auth', this.req.auth);
 		const user = await this.em.findOne(User, { id: this.req.auth.sub });
 		return user;
 	}
