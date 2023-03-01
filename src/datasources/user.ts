@@ -6,6 +6,7 @@ import { User } from '../entities/User';
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import { GraphQLError } from 'graphql';
+import { Register } from 'src/__generated__/resolvers-types';
 
 export class UserAPI extends RESTDataSource {
 	em: EntityManager;
@@ -59,7 +60,7 @@ export class UserAPI extends RESTDataSource {
 		}
 	}
 
-	async register(username: string, password: string): Promise<Loaded<User>> {
+	async register(username: string, password: string): Promise<Register> {
 		if (username.length <= 2) {
 			throw new GraphQLError('length must be greater than 2', {
 				extensions: {
@@ -78,6 +79,7 @@ export class UserAPI extends RESTDataSource {
 
 		const hashedPassword = await argon2.hash(password);
 		let user;
+		let token;
 		try {
 			const result = await this.em
 				.createQueryBuilder(User)
@@ -85,6 +87,11 @@ export class UserAPI extends RESTDataSource {
 				.insert({ username: username, password: hashedPassword, created_at: new Date(), updated_at: new Date() })
 				.returning('*');
 			user = result[0];
+
+			token = jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
+				algorithm: 'HS256',
+				subject: `${user.id}`,
+			});
 		} catch (error) {
 			if (!!error) {
 				throw new GraphQLError('Username already exists', {
@@ -94,6 +101,10 @@ export class UserAPI extends RESTDataSource {
 				});
 			}
 		}
-		return user;
+
+		return {
+			token,
+			user,
+		};
 	}
 }
