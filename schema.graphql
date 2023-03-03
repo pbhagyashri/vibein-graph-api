@@ -1,8 +1,8 @@
 type Query {
-	posts: [Post]
-	post(id: ID!): Post
-	getUsers: [User]
-	me: User
+	posts: [Post!]!
+	post(id: ID!): Post!
+	getUsers: [User!]!
+	me: User!
 }
 
 type Post {
@@ -30,9 +30,9 @@ input UserInputs {
 }
 
 type Mutation {
-	addPost(title: String!): Post
-	updatePost(id: ID!, title: String!): Post
-	deletePost(id: ID!): Boolean
-	register(inputs: UserInputs!): Register
-	login(inputs: UserInputs!): String
+	addPost(title: String!): Post!
+	updatePost(id: ID!, title: String!): Post!
+	deletePost(id: ID!): Boolean!
+	register(inputs: UserInputs!): Register!
+	login(inputs: UserInputs!): String!
 }

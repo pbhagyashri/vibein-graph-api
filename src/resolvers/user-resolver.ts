@@ -2,9 +2,23 @@ import { Resolvers } from '../__generated__/resolvers-types';
 
 export const userResolver: Resolvers = {
 	Query: {
-		getUsers: async (_, __, { dataSources: { userApi } }) => userApi.getUsers(),
+		getUsers: async (_, __, { dataSources: { userApi } }) => {
+			try {
+				const users = await userApi.getUsers();
+				return users;
+			} catch (err) {
+				return err;
+			}
+		},
 
-		me: async (_, __, { dataSources: { userApi } }) => userApi.me(),
+		me: async (_, __, { dataSources: { userApi } }) => {
+			try {
+				const me = await userApi.me();
+				return me;
+			} catch (err) {
+				return err;
+			}
+		},
 	},
 
 	Mutation: {

@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { MyContext } from './src/index';
+import { MyContext } from '../types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -17,11 +17,11 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addPost?: Maybe<Post>;
-  deletePost?: Maybe<Scalars['Boolean']>;
-  login?: Maybe<Scalars['String']>;
-  register?: Maybe<Register>;
-  updatePost?: Maybe<Post>;
+  addPost: Post;
+  deletePost: Scalars['Boolean'];
+  login: Scalars['String'];
+  register: Register;
+  updatePost: Post;
 };
 
 
@@ -60,10 +60,10 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
-  getUsers?: Maybe<Array<Maybe<User>>>;
-  me?: Maybe<User>;
-  post?: Maybe<Post>;
-  posts?: Maybe<Array<Maybe<Post>>>;
+  getUsers: Array<User>;
+  me: User;
+  post: Post;
+  posts: Array<Post>;
 };
 
 
@@ -185,11 +185,11 @@ export type ResolversParentTypes = ResolversObject<{
 }>;
 
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  addPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationAddPostArgs, 'title'>>;
-  deletePost?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
-  login?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
-  register?: Resolver<Maybe<ResolversTypes['Register']>, ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
-  updatePost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'id' | 'title'>>;
+  addPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationAddPostArgs, 'title'>>;
+  deletePost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
+  login?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
+  register?: Resolver<ResolversTypes['Register'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
+  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'id' | 'title'>>;
 }>;
 
 export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
@@ -201,10 +201,10 @@ export type PostResolvers<ContextType = MyContext, ParentType extends ResolversP
 }>;
 
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  getUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
-  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
-  posts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
+  getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
+  posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType>;
 }>;
 
 export type RegisterResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Register'] = ResolversParentTypes['Register']> = ResolversObject<{

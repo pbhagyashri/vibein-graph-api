@@ -1,12 +1,10 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { Loaded } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/mysql';
 import { Request } from 'express';
 import { User } from '../entities/User';
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import { GraphQLError } from 'graphql';
-import { Register } from 'src/__generated__/resolvers-types';
 
 export class UserAPI extends RESTDataSource {
 	em: EntityManager;
@@ -20,11 +18,11 @@ export class UserAPI extends RESTDataSource {
 		this.req = req;
 	}
 
-	async getUsers(): Promise<Loaded<User>[]> {
+	async getUsers() {
 		return await this.em.find(User, {});
 	}
 
-	async me(): Promise<Loaded<User | null>> {
+	async me() {
 		if (!this.token) {
 			return null;
 		}
@@ -32,7 +30,7 @@ export class UserAPI extends RESTDataSource {
 		return await this.em.findOne(User, { id: this.req.auth.sub });
 	}
 
-	async login(username: string, password: string): Promise<String> {
+	async login(username: string, password: string) {
 		const user = await this.em.findOne(User, { username });
 		if (user) {
 			const valid = await argon2.verify(user?.password, password);
@@ -60,7 +58,7 @@ export class UserAPI extends RESTDataSource {
 		}
 	}
 
-	async register(username: string, password: string): Promise<Register> {
+	async register(username: string, password: string) {
 		if (username.length <= 2) {
 			throw new GraphQLError('length must be greater than 2', {
 				extensions: {
