@@ -1,4 +1,3 @@
-import { SqlEntityManager, AbstractSqlDriver, AbstractSqlConnection, AbstractSqlPlatform } from '@mikro-orm/mysql';
 import { PostsAPI } from './datasources/posts';
 import { UserAPI } from './datasources/user';
 
