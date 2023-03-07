@@ -1,5 +1,4 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { EntityManager } from '@mikro-orm/mysql';
 import { Request } from 'express';
 import { User } from '../entities/User';
 import jwt from 'jsonwebtoken';
@@ -7,19 +6,18 @@ import argon2 from 'argon2';
 import { GraphQLError } from 'graphql';
 
 export class UserAPI extends RESTDataSource {
-	em: EntityManager;
 	token?: string;
 	req: Request | any;
 
-	constructor(em: EntityManager, req: Request | any, token?: string) {
+	constructor(req: Request | any, token?: string) {
 		super();
-		this.em = em;
 		this.token = token;
 		this.req = req;
 	}
 
 	async getUsers() {
-		return await this.em.find(User, {});
+		const users = await User.find();
+		return users;
 	}
 
 	async me() {
@@ -27,11 +25,15 @@ export class UserAPI extends RESTDataSource {
 			return null;
 		}
 
-		return await this.em.findOne(User, { id: this.req.auth.sub });
+		return await User.findOne({
+			where: {
+				id: this.req.auth.sub,
+			},
+		});
 	}
 
 	async login(username: string, password: string) {
-		const user = await this.em.findOne(User, { username });
+		const user = await User.findOne({ where: { username } });
 		if (user) {
 			const valid = await argon2.verify(user?.password, password);
 
@@ -79,12 +81,7 @@ export class UserAPI extends RESTDataSource {
 		let user;
 		let token;
 		try {
-			const result = await this.em
-				.createQueryBuilder(User)
-				.getKnexQuery()
-				.insert({ username: username, password: hashedPassword, created_at: new Date(), updated_at: new Date() })
-				.returning('*');
-			user = result[0];
+			user = await User.create({ username: username, password: hashedPassword }).save();
 
 			token = jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
 				algorithm: 'HS256',

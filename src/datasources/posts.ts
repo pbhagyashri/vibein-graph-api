@@ -1,42 +1,52 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
 import { Loaded } from '@mikro-orm/core';
-import { EntityManager } from '@mikro-orm/mysql';
 import { Post } from '../entities/Post';
 
 export class PostsAPI extends RESTDataSource {
-	em: EntityManager;
-	constructor(em: EntityManager) {
+	token?: string;
+	req: Request | any;
+
+	constructor(req: Request | any, token?: string) {
 		super();
-		this.em = em;
+		this.token = token;
+		this.req = req;
 	}
 
 	async getPosts(): Promise<Loaded<Post, never>[]> {
-		return await this.em.find(Post, {});
+		return await Post.find();
 	}
 
 	async getPost(id: number): Promise<Loaded<Post, never> | null> {
-		return await this.em.findOne(Post, { id });
+		return await Post.findOne({
+			where: {
+				id,
+			},
+		});
 	}
 
-	async addPost(title: string): Promise<Loaded<Post, never>> {
-		const post = this.em.create(Post, { title });
-		await this.em.persistAndFlush(post);
-		return post;
+	async createPost(title: string, text: string): Promise<Loaded<Post, never>> {
+		return Post.create({ title, text, creatorId: this.req.auth.sub }).save();
 	}
 
 	async updatePost(id: number, title: string): Promise<Loaded<Post, never> | null> {
-		const post = await this.em.findOne(Post, { id });
+		const post = await Post.findOne({
+			where: {
+				id,
+			},
+		});
 		if (!post) {
 			return null;
 		}
-		post.title = title;
-		await this.em.persistAndFlush(post);
+
+		await Post.update({ id }, { title });
 		return post;
 	}
 
 	async deletePost(id: number): Promise<boolean> {
 		try {
-			await this.em.nativeDelete(Post, { id });
+			await Post.delete({
+				id,
+			});
 			return true;
 		} catch (error) {
 			return false;

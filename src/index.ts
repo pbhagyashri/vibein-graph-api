@@ -1,4 +1,4 @@
-import { MikroORM } from '@mikro-orm/core';
+import 'reflect-metadata';
 import { ApolloServer } from '@apollo/server';
 import { loadFilesSync } from '@graphql-tools/load-files';
 import path from 'path';
@@ -8,20 +8,36 @@ import bodyParser from 'body-parser';
 import http from 'http';
 import express from 'express';
 import { expressjwt } from 'express-jwt';
+import { DataSource } from 'typeorm';
 
 import { __prod__ } from './constants';
-import mikroConfig from './mikro-orm.config';
 import { postResolver } from './resolvers/post-resolver';
 import { userResolver } from './resolvers/user-resolver';
 import { MyContext } from './types';
 import { PostsAPI } from './datasources/posts';
 import { UserAPI } from './datasources/user';
-import { EntityManager } from '@mikro-orm/mysql';
+import { Post } from './entities/Post';
+import { User } from './entities/User';
 
 const main = async () => {
-	const orm = await MikroORM.init(mikroConfig);
-	const em = orm.em.fork() as EntityManager;
-	await orm.getMigrator().up();
+	const myDataSource = new DataSource({
+		type: 'postgres',
+		host: 'localhost',
+		port: 5432,
+		database: 'lireddit2',
+		entities: [Post, User],
+		logging: true,
+		synchronize: true,
+	});
+
+	myDataSource
+		.initialize()
+		.then(() => {
+			console.log('Data Source has been initialized!');
+		})
+		.catch((err) => {
+			console.error('Error during Data Source initialization:', err);
+		});
 
 	const app = express();
 
@@ -58,8 +74,8 @@ const main = async () => {
 					req,
 					res,
 					token: req.headers.authorization,
-					postApi: new PostsAPI(em),
-					userApi: new UserAPI(em, req, req.headers.authorization),
+					postApi: new PostsAPI(req, req.headers.authorization),
+					userApi: new UserAPI(req, req.headers.authorization),
 				},
 			}),
 		}),
