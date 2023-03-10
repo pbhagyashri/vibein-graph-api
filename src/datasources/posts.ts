@@ -25,6 +25,10 @@ export class PostsAPI extends RESTDataSource {
 	}
 
 	async createPost(title: string, text: string): Promise<Loaded<Post, never>> {
+		if (!this.token) {
+			throw new Error('Not Authenticated');
+		}
+
 		return Post.create({ title, text, creatorId: this.req.auth.sub }).save();
 	}
 

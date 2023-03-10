@@ -1,5 +1,3 @@
-import { isAuth } from 'src/middleware/isAuth';
-import { UseMiddleware } from 'type-graphql';
 import { Resolvers } from '../__generated__/resolvers-types';
 
 export const postResolver: Resolvers = {
