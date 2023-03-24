@@ -1,8 +1,8 @@
-import { Resolvers } from '../__generated__/resolvers-types';
+import { Post, Resolvers } from '../__generated__/resolvers-types';
 
 export const postResolver: Resolvers = {
 	Query: {
-		posts: async (_, __, { dataSources: { postApi } }) => {
+		posts: async (_, __, { dataSources: { postApi } }): Promise<Post[] | never> => {
 			try {
 				return await postApi.getPosts();
 			} catch (err) {

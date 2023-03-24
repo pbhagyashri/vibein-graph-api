@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { MyContext } from '../types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -13,6 +13,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Date: any;
 };
 
 export type Mutation = {
@@ -53,13 +54,13 @@ export type MutationUpdatePostArgs = {
 
 export type Post = {
   __typename?: 'Post';
-  createdAt?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['Date']>;
   creatorId: Scalars['Int'];
-  id: Scalars['ID'];
+  id: Scalars['Int'];
   points: Scalars['Int'];
   text: Scalars['String'];
   title: Scalars['String'];
-  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Date']>;
 };
 
 export type Query = {
@@ -83,9 +84,9 @@ export type Register = {
 
 export type User = {
   __typename?: 'User';
-  createdAt?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  updatedAt?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['Date']>;
+  id: Scalars['Int'];
+  updatedAt?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
 };
 
@@ -165,6 +166,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Date: ResolverTypeWrapper<Scalars['Date']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
@@ -179,6 +181,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
+  Date: Scalars['Date'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Mutation: {};
@@ -190,6 +193,10 @@ export type ResolversParentTypes = ResolversObject<{
   UserInputs: UserInputs;
 }>;
 
+export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
+  name: 'Date';
+}
+
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'text' | 'title'>>;
   deletePost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
@@ -199,13 +206,13 @@ export type MutationResolvers<ContextType = MyContext, ParentType extends Resolv
 }>;
 
 export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
-  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   creatorId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   points?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -223,14 +230,15 @@ export type RegisterResolvers<ContextType = MyContext, ParentType extends Resolv
 }>;
 
 export type UserResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
-  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  updatedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = MyContext> = ResolversObject<{
+  Date?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

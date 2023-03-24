@@ -18,7 +18,6 @@ import { PostsAPI } from './datasources/posts';
 import { UserAPI } from './datasources/user';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
-import { isAuth } from './middleware/isAuth';
 
 const main = async () => {
 	const myDataSource = new DataSource({
