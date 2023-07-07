@@ -1,6 +1,7 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { Loaded } from '@mikro-orm/core';
+import DataLoader from 'dataloader';
 import { Post } from '../entities/Post';
+import { In } from 'typeorm';
 
 export class PostsAPI extends RESTDataSource {
 	token?: string;
@@ -12,46 +13,61 @@ export class PostsAPI extends RESTDataSource {
 		this.req = req;
 	}
 
-	async getPosts(): Promise<Loaded<Post, never>[]> {
-		return await Post.find();
-	}
+	private postLoader = new DataLoader<number, Post>((keys) => {
+		try {
+			return Post.findBy({ id: In(keys) });
+		} catch (err) {
+			if (err instanceof Error) {
+				return Promise.resolve(err);
+			}
+			return Promise.resolve(new Error(JSON.stringify(err)));
+		}
+	});
 
-	async getPost(id: number): Promise<Loaded<Post, never> | null> {
-		return await Post.findOne({
-			where: {
-				id,
-			},
+	async getAllPosts(): Promise<Post[]> {
+		const posts = await Post.find();
+		posts.forEach((post) => {
+			this.postLoader.prime(post.id, post);
 		});
+		return posts;
 	}
 
-	async createPost(title: string, text: string): Promise<Loaded<Post, never>> {
+	async getPost(id: number): Promise<Post | null> {
+		return await this.postLoader.load(id);
+	}
+
+	async createPost(title: string, text: string): Promise<Post> {
 		if (!this.token) {
 			throw new Error('Not Authenticated');
 		}
 
-		return Post.create({ title, text, creatorId: this.req.auth.sub }).save();
+		const post = await Post.create({
+			title,
+			text,
+			creatorId: this.req.auth.sub,
+		}).save();
+
+		this.postLoader.prime(post.id, post);
+		return post;
 	}
 
-	async updatePost(id: number, title: string): Promise<Loaded<Post, never> | null> {
-		const post = await Post.findOne({
-			where: {
-				id,
-			},
-		});
+	async updatePost(id: number, title: string): Promise<Post | null> {
+		const post = await this.postLoader.load(id);
 		if (!post) {
 			return null;
 		}
 
 		await Post.update({ id }, { title });
+		this.postLoader.prime(post.id, post);
 		return post;
 	}
 
-	async deletePost(id: number): Promise<boolean> {
+	async deletePost(id: number): Promise<number | Boolean> {
 		try {
 			await Post.delete({
 				id,
 			});
-			return true;
+			return id;
 		} catch (error) {
 			return false;
 		}

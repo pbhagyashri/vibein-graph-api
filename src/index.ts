@@ -11,13 +11,10 @@ import { expressjwt } from 'express-jwt';
 import { DataSource } from 'typeorm';
 
 import { __prod__ } from './constants';
-import { postResolver } from './resolvers/post-resolver';
-import { userResolver } from './resolvers/user-resolver';
+import { postResolver, userResolver } from './resolvers';
 import { MyContext } from './types';
-import { PostsAPI } from './datasources/posts';
-import { UserAPI } from './datasources/user';
-import { Post } from './entities/Post';
-import { User } from './entities/User';
+import { Post, User } from './entities';
+import { PostsAPI, UserAPI } from './datasources';
 
 const main = async () => {
 	const myDataSource = new DataSource({
@@ -46,12 +43,14 @@ const main = async () => {
 			secret: 'shhhhhhared-secret',
 			algorithms: ['HS256'],
 			credentialsRequired: false,
-		}),
+		})
 	);
 
 	const httpServer = http.createServer(app);
 	const { resolve, dirname, join } = path;
-	const typeDefs = loadFilesSync(join(resolve(dirname('')), './schema.graphql'));
+	const typeDefs = loadFilesSync(
+		join(resolve(dirname('')), './schema.graphql')
+	);
 
 	const server = new ApolloServer<MyContext>({
 		introspection: !__prod__,
@@ -78,10 +77,12 @@ const main = async () => {
 					userApi: new UserAPI(req, req.headers.authorization),
 				},
 			}),
-		}),
+		})
 	);
 
-	await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
+	await new Promise<void>((resolve) =>
+		httpServer.listen({ port: 4000 }, resolve)
+	);
 	console.log(`🚀 Server ready at http://localhost:4000/`);
 };
 

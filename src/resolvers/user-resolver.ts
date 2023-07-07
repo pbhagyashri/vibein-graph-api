@@ -2,7 +2,7 @@ import { Resolvers, User } from '../__generated__/resolvers-types';
 
 export const userResolver: Resolvers = {
 	Query: {
-		getUsers: (_, __, { dataSources: { userApi } }): Promise<User[] | never> => {
+		getUsers: (_, __, { dataSources: { userApi } }): Promise<User[]> => {
 			try {
 				return userApi.getUsers();
 			} catch (err) {
@@ -20,7 +20,11 @@ export const userResolver: Resolvers = {
 	},
 
 	Mutation: {
-		register: async (_, { inputs: { username, password } }, { dataSources: { userApi } }) => {
+		register: async (
+			_,
+			{ inputs: { username, password } },
+			{ dataSources: { userApi } }
+		) => {
 			try {
 				return userApi.register(username, password);
 			} catch (err) {
@@ -28,7 +32,10 @@ export const userResolver: Resolvers = {
 			}
 		},
 
-		login: async (_, { inputs: { username, password } }, { dataSources: { userApi } }) =>
-			await userApi.login(username, password),
+		login: async (
+			_,
+			{ inputs: { username, password } },
+			{ dataSources: { userApi } }
+		) => await userApi.login(username, password),
 	},
 };

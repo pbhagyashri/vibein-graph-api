@@ -19,7 +19,7 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation';
   createPost: Post;
-  deletePost: Scalars['Boolean'];
+  deletePost: Scalars['ID'];
   login: Scalars['String'];
   register: Register;
   updatePost: Post;
@@ -201,7 +201,7 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'text' | 'title'>>;
-  deletePost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
+  deletePost?: Resolver<ResolversTypes['ID'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
   login?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
   register?: Resolver<ResolversTypes['Register'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
   updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'id' | 'title'>>;

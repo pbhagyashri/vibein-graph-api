@@ -34,6 +34,7 @@ export class UserAPI extends RESTDataSource {
 
 	async login(username: string, password: string) {
 		const user = await User.findOne({ where: { username } });
+
 		if (user) {
 			const valid = await argon2.verify(user?.password, password);
 
@@ -45,10 +46,14 @@ export class UserAPI extends RESTDataSource {
 				});
 			}
 
-			return jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
-				algorithm: 'HS256',
-				subject: `${user.id}`,
-			});
+			return jwt.sign(
+				{ 'http://localhost:4000/': { user } },
+				'shhhhhhared-secret',
+				{
+					algorithm: 'HS256',
+					subject: `${user.id}`,
+				}
+			);
 		} else {
 			{
 				throw new GraphQLError("username doesn't exist", {
@@ -78,28 +83,32 @@ export class UserAPI extends RESTDataSource {
 		}
 
 		const hashedPassword = await argon2.hash(password);
-		let user;
-		let token;
+
 		try {
-			user = await User.create({ username: username, password: hashedPassword }).save();
+			const user = await User.create({
+				username: username,
+				password: hashedPassword,
+			}).save();
 
-			token = jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
-				algorithm: 'HS256',
-				subject: `${user.id}`,
-			});
+			const token = jwt.sign(
+				{ 'http://localhost:4000/': { user } },
+				'shhhhhhared-secret',
+				{
+					algorithm: 'HS256',
+					subject: `${user.id}`,
+				}
+			);
+
+			return {
+				token,
+				user,
+			};
 		} catch (error) {
-			if (!!error) {
-				throw new GraphQLError('Username already exists', {
-					extensions: {
-						code: 'BAD_USER_INPUT',
-					},
-				});
-			}
+			throw new GraphQLError('Username already exists', {
+				extensions: {
+					code: 'BAD_USER_INPUT',
+				},
+			});
 		}
-
-		return {
-			token,
-			user,
-		};
 	}
 }
