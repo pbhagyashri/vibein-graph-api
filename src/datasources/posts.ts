@@ -16,11 +16,8 @@ export class PostsAPI extends RESTDataSource {
 	private postLoader = new DataLoader<number, Post>((keys) => {
 		try {
 			return Post.findBy({ id: In(keys) });
-		} catch (err) {
-			if (err instanceof Error) {
-				return Promise.resolve(err);
-			}
-			return Promise.resolve(new Error(JSON.stringify(err)));
+		} catch (error) {
+			return error;
 		}
 	});
 

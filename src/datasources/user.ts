@@ -22,7 +22,7 @@ export class UserAPI extends RESTDataSource {
 
 	async me() {
 		if (!this.token) {
-			return null;
+			throw new Error('Your session has expired. Please log in again.');
 		}
 
 		return await User.findOne({
@@ -46,14 +46,10 @@ export class UserAPI extends RESTDataSource {
 				});
 			}
 
-			return jwt.sign(
-				{ 'http://localhost:4000/': { user } },
-				'shhhhhhared-secret',
-				{
-					algorithm: 'HS256',
-					subject: `${user.id}`,
-				}
-			);
+			return jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
+				algorithm: 'HS256',
+				subject: `${user.id}`,
+			});
 		} else {
 			{
 				throw new GraphQLError("username doesn't exist", {
@@ -90,14 +86,10 @@ export class UserAPI extends RESTDataSource {
 				password: hashedPassword,
 			}).save();
 
-			const token = jwt.sign(
-				{ 'http://localhost:4000/': { user } },
-				'shhhhhhared-secret',
-				{
-					algorithm: 'HS256',
-					subject: `${user.id}`,
-				}
-			);
+			const token = jwt.sign({ 'http://localhost:4000/': { user } }, 'shhhhhhared-secret', {
+				algorithm: 'HS256',
+				subject: `${user.id}`,
+			});
 
 			return {
 				token,
