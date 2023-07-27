@@ -48,13 +48,19 @@ export class PostsAPI extends RESTDataSource {
 		return post;
 	}
 
-	async updatePost(id: number, title: string): Promise<Post | null> {
+	async updatePost(id: number, title: string, text: string, creatorId: number, points: number): Promise<Post | null> {
 		const post = await this.postLoader.load(id);
 		if (!post) {
 			return null;
 		}
+		if (post.creatorId !== creatorId) {
+			throw new Error('Not Authorized');
+		}
 
-		await Post.update({ id }, { title });
+		post.points += points;
+		post.title = title;
+		post.text = text;
+		await post.save();
 		this.postLoader.prime(post.id, post);
 		return post;
 	}

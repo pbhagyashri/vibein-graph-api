@@ -2,11 +2,7 @@ import { Post, Resolvers } from '../__generated__/resolvers-types';
 
 export const postResolver: Resolvers = {
 	Query: {
-		posts: async (
-			_,
-			__,
-			{ dataSources: { postApi } }
-		): Promise<Post[] | never> => {
+		posts: async (_, __, { dataSources: { postApi } }): Promise<Post[] | never> => {
 			try {
 				return await postApi.getAllPosts();
 			} catch (err) {
@@ -24,11 +20,7 @@ export const postResolver: Resolvers = {
 	},
 
 	Mutation: {
-		createPost: async (
-			_,
-			{ title, text },
-			{ dataSources: { postApi, token } }
-		) => {
+		createPost: async (_, { title, text }, { dataSources: { postApi, token } }) => {
 			try {
 				if (!token) {
 					return new Error('Not authenticated, please login');
@@ -39,16 +31,12 @@ export const postResolver: Resolvers = {
 			}
 		},
 
-		updatePost: async (
-			_,
-			{ id, title },
-			{ dataSources: { postApi, token } }
-		) => {
+		updatePost: async (_, { id, title, text, creatorId, points }, { dataSources: { postApi, token } }) => {
 			try {
 				if (!token) {
 					return new Error('Not authenticated, please login');
 				}
-				return await postApi.updatePost(parseInt(id), title);
+				return await postApi.updatePost(parseInt(id), title, text, creatorId, points);
 			} catch (err) {
 				return err;
 			}

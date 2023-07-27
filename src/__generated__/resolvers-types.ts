@@ -48,7 +48,10 @@ export type MutationRegisterArgs = {
 
 
 export type MutationUpdatePostArgs = {
+  creatorId: Scalars['Int'];
   id: Scalars['ID'];
+  points: Scalars['Int'];
+  text: Scalars['String'];
   title: Scalars['String'];
 };
 
@@ -202,7 +205,7 @@ export type MutationResolvers<ContextType = MyContext, ParentType extends Resolv
   deletePost?: Resolver<ResolversTypes['ID'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
   login?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
   register?: Resolver<ResolversTypes['Register'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
-  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'id' | 'title'>>;
+  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'creatorId' | 'id' | 'points' | 'text' | 'title'>>;
 }>;
 
 export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
