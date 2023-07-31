@@ -1,9 +1,10 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import DataLoader from 'dataloader';
 import { Post } from '../entities/Post';
-import { In } from 'typeorm';
+import { myDataSource } from '../index';
 
 export class PostsAPI extends RESTDataSource {
+	postRepository = myDataSource.manager.getRepository(Post);
+
 	token?: string;
 	req: Request | any;
 
@@ -13,24 +14,36 @@ export class PostsAPI extends RESTDataSource {
 		this.req = req;
 	}
 
-	private postLoader = new DataLoader<number, Post>((keys) => {
-		try {
-			return Post.findBy({ id: In(keys) });
-		} catch (error) {
-			return error;
-		}
-	});
+	// private postLoader = new DataLoader<number, Post>(async (keys) => {
+	// 	try {
+	// 		return Post.findBy({ id: In(keys) });
+	// 	} catch (error) {
+	// 		return error;
+	// 	}
+	// });
 
-	async getAllPosts(): Promise<Post[]> {
-		const posts = await Post.find();
-		posts.forEach((post) => {
-			this.postLoader.prime(post.id, post);
-		});
-		return posts;
+	async getAllPosts(limit: number, cursor?: string | null): Promise<Post[]> {
+		const realLimit = Math.min(50, limit);
+
+		// we used query builder here so that we can conditionally add a where clause if a cursor is provided
+		// find most recent posts
+		const qb = this.postRepository.createQueryBuilder('post').orderBy('"createdAt"', 'DESC').take(realLimit);
+
+		// if cursor is provided, find posts older than cursor
+		if (cursor) {
+			qb.where('"createdAt" < :cursor', { cursor: cursor });
+		}
+
+		// execute query and return posts
+		return await qb.getMany();
 	}
 
 	async getPost(id: number): Promise<Post | null> {
-		return await this.postLoader.load(id);
+		return await Post.findOne({
+			where: {
+				id,
+			},
+		});
 	}
 
 	async createPost(title: string, text: string): Promise<Post> {
@@ -44,24 +57,29 @@ export class PostsAPI extends RESTDataSource {
 			creatorId: this.req.auth.sub,
 		}).save();
 
-		this.postLoader.prime(post.id, post);
 		return post;
 	}
 
 	async updatePost(id: number, title: string, text: string, creatorId: number, points: number): Promise<Post | null> {
-		const post = await this.postLoader.load(id);
+		const post = await Post.findOne({
+			where: {
+				id,
+			},
+		});
+
 		if (!post) {
 			return null;
 		}
+
+		// only the author of the post can update it
 		if (post.creatorId !== creatorId) {
-			throw new Error('Not Authorized');
+			throw new Error("You don't have permission to update this post");
 		}
 
 		post.points += points;
 		post.title = title;
 		post.text = text;
 		await post.save();
-		this.postLoader.prime(post.id, post);
 		return post;
 	}
 

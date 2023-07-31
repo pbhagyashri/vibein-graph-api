@@ -2,9 +2,9 @@ import { Post, Resolvers } from '../__generated__/resolvers-types';
 
 export const postResolver: Resolvers = {
 	Query: {
-		posts: async (_, __, { dataSources: { postApi } }): Promise<Post[] | never> => {
+		posts: async (_, { limit, cursor }, { dataSources: { postApi } }): Promise<Post[] | never> => {
 			try {
-				return await postApi.getAllPosts();
+				return await postApi.getAllPosts(limit, cursor);
 			} catch (err) {
 				return err;
 			}
