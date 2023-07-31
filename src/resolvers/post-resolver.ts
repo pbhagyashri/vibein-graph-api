@@ -20,11 +20,8 @@ export const postResolver: Resolvers = {
 	},
 
 	Mutation: {
-		createPost: async (_, { title, text }, { dataSources: { postApi, token } }) => {
+		createPost: async (_, { title, text }, { dataSources: { postApi } }) => {
 			try {
-				if (!token) {
-					return new Error('Not authenticated, please login');
-				}
 				return await postApi.createPost(title, text);
 			} catch (err) {
 				return err;
