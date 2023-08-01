@@ -41,3 +41,6 @@ type Mutation {
 	register(inputs: UserInputs!): Register!
 	login(inputs: UserInputs!): String!
 }
+
+# Cursor based pagination with GraphQL blog post
+# https://blog.logrocket.com/implement-cursor-based-pagination-graphql/
