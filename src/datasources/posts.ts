@@ -24,18 +24,25 @@ export class PostsAPI extends RESTDataSource {
 
 	async getAllPosts(limit: number, cursor?: string | null): Promise<Post[]> {
 		const realLimit = Math.min(50, limit);
+		const replacements: any[] = [realLimit];
 
-		// we used query builder here so that we can conditionally add a where clause if a cursor is provided
-		// find most recent posts
-		const qb = this.postRepository.createQueryBuilder('post').orderBy('"createdAt"', 'DESC').take(realLimit);
-
-		// if cursor is provided, find posts older than cursor
 		if (cursor) {
-			qb.where('"createdAt" < :cursor', { cursor: cursor });
+			replacements.push(cursor);
 		}
 
-		// execute query and return posts
-		return await qb.getMany();
+		const posts = myDataSource.manager.query(
+			// select posts and creator info. order by createdAt DESC (newest first) and limit to realLimit
+			`
+			select post.*, json_build_object('id', u.id, 'username', u.username) creator from post
+			inner join "user-entity" u on u.id = post."creatorId"
+			${cursor ? `where post."createdAt" < $2` : ''}
+			order by post."createdAt" DESC
+			limit $1
+		`,
+			replacements,
+		);
+
+		return posts;
 	}
 
 	async getPost(id: number): Promise<Post | null> {

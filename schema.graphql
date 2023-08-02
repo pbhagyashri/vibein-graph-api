@@ -5,6 +5,7 @@ type Post {
 	title: String!
 	text: String!
 	points: Int!
+	creator: User!
 	creatorId: Int!
 	createdAt: Date
 	updatedAt: Date

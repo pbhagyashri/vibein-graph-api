@@ -58,6 +58,7 @@ export type MutationUpdatePostArgs = {
 export type Post = {
   __typename?: 'Post';
   createdAt?: Maybe<Scalars['Date']>;
+  creator: User;
   creatorId: Scalars['Int'];
   id: Scalars['Int'];
   points: Scalars['Int'];
@@ -218,6 +219,7 @@ export type MutationResolvers<ContextType = MyContext, ParentType extends Resolv
 
 export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  creator?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   creatorId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   points?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
