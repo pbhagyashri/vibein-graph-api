@@ -50,6 +50,9 @@ export class PostsAPI extends RESTDataSource {
 			where: {
 				id,
 			},
+			relations: {
+				creator: true,
+			},
 		});
 	}
 
