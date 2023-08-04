@@ -1,6 +1,8 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
 import { Post } from '../entities/Post';
 import { myDataSource } from '../index';
+import { GraphQLError } from 'graphql';
+import { parse } from 'path/win32';
 
 export class PostsAPI extends RESTDataSource {
 	postRepository = myDataSource.manager.getRepository(Post);
@@ -22,6 +24,8 @@ export class PostsAPI extends RESTDataSource {
 	// 	}
 	// });
 
+	// TODO: implement dataloader
+	// TODO: implement try catch blocks
 	async getAllPosts(limit: number, cursor?: string | null): Promise<Post[]> {
 		const realLimit = Math.min(50, limit);
 		const replacements: any[] = [realLimit];
@@ -83,7 +87,11 @@ export class PostsAPI extends RESTDataSource {
 
 		// only the author of the post can update it
 		if (post.creatorId !== creatorId) {
-			throw new Error("You don't have permission to update this post");
+			throw new GraphQLError('you can only edit your own posts', {
+				extensions: {
+					code: 'VALIDATION_ERROR',
+				},
+			});
 		}
 
 		post.points += points;
@@ -94,13 +102,29 @@ export class PostsAPI extends RESTDataSource {
 	}
 
 	async deletePost(id: number): Promise<number | Boolean> {
+		const post = await Post.findOne({
+			where: {
+				id,
+			},
+		});
+
+		// only the author of the post can delete it
+		if (post?.creatorId !== parseInt(this.req.auth.sub)) {
+			throw new Error('you can only delete your own posts');
+		}
+
 		try {
 			await Post.delete({
 				id,
 			});
+
 			return id;
 		} catch (error) {
-			return false;
+			throw new GraphQLError(error.message, {
+				extensions: {
+					code: 'INTERNAL_SERVER_ERROR',
+				},
+			});
 		}
 	}
 }

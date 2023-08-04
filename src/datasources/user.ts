@@ -41,7 +41,8 @@ export class UserAPI extends RESTDataSource {
 			if (!valid) {
 				throw new GraphQLError('Invalid password', {
 					extensions: {
-						code: 'BAD_USER_INPUT',
+						argumentName: 'password',
+						code: 'VALIDATION_ERROR',
 					},
 				});
 			}
@@ -54,6 +55,7 @@ export class UserAPI extends RESTDataSource {
 			{
 				throw new GraphQLError("username doesn't exist", {
 					extensions: {
+						argumentName: 'username',
 						code: 'BAD_USER_INPUT',
 					},
 				});
@@ -63,17 +65,34 @@ export class UserAPI extends RESTDataSource {
 
 	async register(username: string, password: string) {
 		if (username.length <= 2) {
-			throw new GraphQLError('length must be greater than 2', {
+			throw new GraphQLError('username must be greater than 2', {
 				extensions: {
+					argumentName: 'username',
 					code: 'BAD_USER_INPUT',
 				},
 			});
 		}
+
 		if (password.length <= 3) {
-			throw new GraphQLError('length must be greater than 3', {
+			throw new GraphQLError('password must be greater than 3', {
 				extensions: {
-					code: 'BAD_USER_INPUT',
-					path: 'username',
+					argumentName: 'password',
+					code: 'VALIDATION_ERROR',
+				},
+			});
+		}
+
+		const user = await User.find({
+			where: {
+				username: username,
+			},
+		});
+
+		if (user?.length > 0) {
+			throw new GraphQLError('Username already exists', {
+				extensions: {
+					argumentName: 'username',
+					code: 'VALIDATION_ERROR',
 				},
 			});
 		}
@@ -96,9 +115,9 @@ export class UserAPI extends RESTDataSource {
 				user,
 			};
 		} catch (error) {
-			throw new GraphQLError('Username already exists', {
+			throw new GraphQLError(error.message, {
 				extensions: {
-					code: 'BAD_USER_INPUT',
+					code: 'INTERNAL_SERVER_ERROR',
 				},
 			});
 		}
