@@ -20,11 +20,6 @@ export class PostsAPI extends RESTDataSource {
 	// TODO: implement try catch blocks
 	async getAllPosts(limit: number, cursor?: string | null): Promise<Post[]> {
 		const realLimit = Math.min(50, limit);
-		const replacements: any[] = [realLimit];
-
-		if (cursor) {
-			replacements.push(cursor);
-		}
 
 		if (cursor) {
 			const posts = await this.postRepository
