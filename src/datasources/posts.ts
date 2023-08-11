@@ -16,14 +16,6 @@ export class PostsAPI extends RESTDataSource {
 		this.req = req;
 	}
 
-	// private postLoader = new DataLoader<number, Post>(async (keys) => {
-	// 	try {
-	// 		return Post.findBy({ id: In(keys) });
-	// 	} catch (error) {
-	// 		return error;
-	// 	}
-	// });
-
 	// TODO: implement dataloader
 	// TODO: implement try catch blocks
 	async getAllPosts(limit: number, cursor?: string | null): Promise<Post[]> {
@@ -34,17 +26,24 @@ export class PostsAPI extends RESTDataSource {
 			replacements.push(cursor);
 		}
 
-		const posts = myDataSource.manager.query(
-			// select posts and creator info. order by createdAt DESC (newest first) and limit to realLimit
-			`
-			select post.*, json_build_object('id', u.id, 'username', u.username) creator from post
-			inner join "user-entity" u on u.id = post."creatorId"
-			${cursor ? `where post."createdAt" < $2` : ''}
-			order by post."createdAt" DESC
-			limit $1
-		`,
-			replacements,
-		);
+		if (cursor) {
+			const posts = await this.postRepository
+				.createQueryBuilder('post')
+				.leftJoinAndSelect('post.creator', 'user')
+				.where('post.createdAt < :cursor', { cursor })
+				.orderBy('post.createdAt', 'DESC')
+				.take(realLimit)
+				.getMany();
+
+			return posts;
+		}
+
+		const posts = await this.postRepository
+			.createQueryBuilder('post')
+			.leftJoinAndSelect('post.creator', 'user')
+			.orderBy('post.createdAt', 'DESC')
+			.take(limit)
+			.getMany();
 
 		return posts;
 	}
