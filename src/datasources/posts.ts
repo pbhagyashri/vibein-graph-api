@@ -2,7 +2,6 @@ import { RESTDataSource } from '@apollo/datasource-rest';
 import { Post } from '../entities/Post';
 import { myDataSource } from '../index';
 import { GraphQLError } from 'graphql';
-import { parse } from 'path/win32';
 
 export class PostsAPI extends RESTDataSource {
 	postRepository = myDataSource.manager.getRepository(Post);
