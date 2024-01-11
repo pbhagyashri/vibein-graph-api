@@ -1,123 +1,128 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
-import { Post } from '../entities/Post';
-import { myDataSource } from '../index';
-import { GraphQLError } from 'graphql';
+import {
+	CreatePostRequestBody,
+	CreatePostResponseBody,
+	GetPostResponseBody,
+	GetPostsResponseBody,
+	GetPostsRequestBody,
+} from '../types';
 
 export class PostsAPI extends RESTDataSource {
-	postRepository = myDataSource.manager.getRepository(Post);
-
-	token?: string;
-	req: Request | any;
-
-	constructor(req: Request | any, token?: string) {
+	constructor() {
 		super();
-		this.token = token;
-		this.req = req;
+		this.baseURL = 'http://localhost:4000/';
+	}
+
+	async getAllPosts({ limit, cursor }: GetPostsRequestBody): Promise<GetPostsResponseBody['record']> {
+		try {
+			if (!cursor) {
+				const responses: GetPostsResponseBody = await this.get(`posts?limit=${limit}`);
+				return responses.record;
+			}
+			const responses: GetPostsResponseBody = await this.get(`posts?cursor=${cursor}&limit=${limit}`);
+
+			return responses.record;
+		} catch (error) {
+			return error;
+		}
+	}
+
+	async getPost(id: string): Promise<GetPostResponseBody['record']> {
+		try {
+			const response: GetPostResponseBody = await this.get(`posts/${id}`);
+			return response.record;
+		} catch (error) {
+			return error;
+		}
+	}
+
+	async createPost({ title, content, authorId }: CreatePostRequestBody): Promise<CreatePostResponseBody> {
+		try {
+			const response = await this.post('posts', { body: { title, content, authorId } });
+			return response.record;
+		} catch (error) {
+			return error;
+		}
 	}
 
 	// TODO: implement dataloader
 	// TODO: implement try catch blocks
-	async getAllPosts(limit: number, cursor?: string | null): Promise<Post[]> {
-		const realLimit = Math.min(50, limit);
+	// async getAllPosts(limit: number, cursor?: string | null) {
+	// 	const realLimit = Math.min(50, limit);
 
-		if (cursor) {
-			const posts = await this.postRepository
-				.createQueryBuilder('post')
-				.leftJoinAndSelect('post.creator', 'user')
-				.where('post.createdAt < :cursor', { cursor })
-				.orderBy('post.createdAt', 'DESC')
-				.take(realLimit)
-				.getMany();
+	// 	// if (cursor) {
+	// 	// 	const posts = await this.postRepository
+	// 	// 		.createQueryBuilder('post')
+	// 	// 		.leftJoinAndSelect('post.creator', 'user')
+	// 	// 		.where('post.createdAt < :cursor', { cursor })
+	// 	// 		.orderBy('post.createdAt', 'DESC')
+	// 	// 		.take(realLimit)
+	// 	// 		.getMany();
 
-			return posts;
-		}
+	// 	// 	return posts;
+	// 	// }
 
-		const posts = await this.postRepository
-			.createQueryBuilder('post')
-			.leftJoinAndSelect('post.creator', 'user')
-			.orderBy('post.createdAt', 'DESC')
-			.take(limit)
-			.getMany();
+	// 	// const posts = await this.postRepository
+	// 	// 	.createQueryBuilder('post')
+	// 	// 	.leftJoinAndSelect('post.creator', 'user')
+	// 	// 	.orderBy('post.createdAt', 'DESC')
+	// 	// 	.take(limit)
+	// 	// 	.getMany();
 
-		return posts;
-	}
+	// 	// return posts;
+	// }
 
-	async getPost(id: number): Promise<Post | null> {
-		return await Post.findOne({
-			where: {
-				id,
-			},
-			relations: {
-				creator: true,
-			},
-		});
-	}
+	// async updatePost(id: number, title: string, text: string, creatorId: number, points: number): Promise<Post | null> {
+	// 	const post = await Post.findOne({
+	// 		where: {
+	// 			id,
+	// 		},
+	// 	});
 
-	async createPost(title: string, text: string): Promise<Post> {
-		if (!this.token) {
-			throw new Error('Not Authenticated');
-		}
+	// 	if (!post) {
+	// 		return null;
+	// 	}
 
-		const post = await Post.create({
-			title,
-			text,
-			creatorId: this.req.auth.sub,
-		}).save();
+	// 	// only the author of the post can update it
+	// 	if (post.creatorId !== creatorId) {
+	// 		throw new GraphQLError('you can only edit your own posts', {
+	// 			extensions: {
+	// 				code: 'VALIDATION_ERROR',
+	// 			},
+	// 		});
+	// 	}
 
-		return post;
-	}
+	// 	post.points += points;
+	// 	post.title = title;
+	// 	post.text = text;
+	// 	await post.save();
+	// 	return post;
+	// }
 
-	async updatePost(id: number, title: string, text: string, creatorId: number, points: number): Promise<Post | null> {
-		const post = await Post.findOne({
-			where: {
-				id,
-			},
-		});
+	// async deletePost(id: number): Promise<number | Boolean> {
+	// 	const post = await Post.findOne({
+	// 		where: {
+	// 			id,
+	// 		},
+	// 	});
 
-		if (!post) {
-			return null;
-		}
+	// 	// only the author of the post can delete it
+	// 	if (post?.creatorId !== parseInt(this.req.auth.sub)) {
+	// 		throw new Error('you can only delete your own posts');
+	// 	}
 
-		// only the author of the post can update it
-		if (post.creatorId !== creatorId) {
-			throw new GraphQLError('you can only edit your own posts', {
-				extensions: {
-					code: 'VALIDATION_ERROR',
-				},
-			});
-		}
+	// 	try {
+	// 		await Post.delete({
+	// 			id,
+	// 		});
 
-		post.points += points;
-		post.title = title;
-		post.text = text;
-		await post.save();
-		return post;
-	}
-
-	async deletePost(id: number): Promise<number | Boolean> {
-		const post = await Post.findOne({
-			where: {
-				id,
-			},
-		});
-
-		// only the author of the post can delete it
-		if (post?.creatorId !== parseInt(this.req.auth.sub)) {
-			throw new Error('you can only delete your own posts');
-		}
-
-		try {
-			await Post.delete({
-				id,
-			});
-
-			return id;
-		} catch (error) {
-			throw new GraphQLError(error.message, {
-				extensions: {
-					code: 'INTERNAL_SERVER_ERROR',
-				},
-			});
-		}
-	}
+	// 		return id;
+	// 	} catch (error) {
+	// 		throw new GraphQLError(error.message, {
+	// 			extensions: {
+	// 				code: 'INTERNAL_SERVER_ERROR',
+	// 			},
+	// 		});
+	// 	}
+	// }
 }

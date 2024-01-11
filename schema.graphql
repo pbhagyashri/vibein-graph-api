@@ -1,46 +1,77 @@
 scalar Date
 
+type PostAuthor {
+	id: String!
+	username: String!
+	email: String!
+}
+
 type Post {
-	id: Int!
+	id: String!
 	title: String!
-	text: String!
-	points: Int!
-	creator: User!
-	creatorId: Int!
+	content: String!
+	likes: Int!
+	author: PostAuthor!
+	authorId: String!
 	createdAt: Date
 	updatedAt: Date
 }
 
 type User {
-	id: Int!
+	id: String!
 	username: String!
+	email: String!
 	createdAt: Date
 	updatedAt: Date
 }
 
-type Register {
+type AuthResponse {
 	user: User!
-	token: String!
+	accessToken: String!
 }
 
-input UserInputs {
+input LoginRequestBody {
+	password: String!
+	email: String!
+}
+
+input RegisterRequestBody {
 	username: String!
 	password: String!
+	email: String!
+}
+
+input CreatePostRequestBody {
+	title: String!
+	content: String!
+	authorId: String!
+}
+
+input UpdatePostRequestBody {
+	title: String!
+	content: String!
+	authorId: String!
+	likes: Int!
+}
+
+input GetPostsRequestBody {
+	limit: String!
+	cursor: String
 }
 
 type Query {
-	posts(limit: Int!, cursor: String): [Post!]!
-	post(id: ID!): Post!
+	getPosts(inputs: GetPostsRequestBody!): [Post!]!
+	getPost(id: String!): Post!
 	getUsers: [User!]!
 	me: User!
 }
 
 type Mutation {
-	createPost(title: String!, text: String!): Post!
-	updatePost(id: ID!, title: String!, text: String!, creatorId: Int!, points: Int!): Post!
-	deletePost(id: ID!): ID!
-	register(inputs: UserInputs!): Register!
-	login(inputs: UserInputs!): String!
+	createPost(inputs: CreatePostRequestBody!): Post!
+	updatePost(inputs: UpdatePostRequestBody!): Post!
+	deletePost: ID!
+	register(inputs: RegisterRequestBody!): AuthResponse!
+	login(inputs: LoginRequestBody!): AuthResponse!
 }
 
 # Cursor based pagination with GraphQL blog post

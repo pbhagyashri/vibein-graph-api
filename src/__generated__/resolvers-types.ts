@@ -16,92 +16,113 @@ export type Scalars = {
   Date: any;
 };
 
+export type AuthResponse = {
+  __typename?: 'AuthResponse';
+  accessToken: Scalars['String'];
+  user: User;
+};
+
+export type CreatePostRequestBody = {
+  authorId: Scalars['String'];
+  content: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export type GetPostsRequestBody = {
+  cursor?: InputMaybe<Scalars['String']>;
+  limit: Scalars['String'];
+};
+
+export type LoginRequestBody = {
+  email: Scalars['String'];
+  password: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createPost: Post;
   deletePost: Scalars['ID'];
-  login: Scalars['String'];
-  register: Register;
+  login: AuthResponse;
+  register: AuthResponse;
   updatePost: Post;
 };
 
 
 export type MutationCreatePostArgs = {
-  text: Scalars['String'];
-  title: Scalars['String'];
-};
-
-
-export type MutationDeletePostArgs = {
-  id: Scalars['ID'];
+  inputs: CreatePostRequestBody;
 };
 
 
 export type MutationLoginArgs = {
-  inputs: UserInputs;
+  inputs: LoginRequestBody;
 };
 
 
 export type MutationRegisterArgs = {
-  inputs: UserInputs;
+  inputs: RegisterRequestBody;
 };
 
 
 export type MutationUpdatePostArgs = {
-  creatorId: Scalars['Int'];
-  id: Scalars['ID'];
-  points: Scalars['Int'];
-  text: Scalars['String'];
-  title: Scalars['String'];
+  inputs: UpdatePostRequestBody;
 };
 
 export type Post = {
   __typename?: 'Post';
+  author: PostAuthor;
+  authorId: Scalars['String'];
+  content: Scalars['String'];
   createdAt?: Maybe<Scalars['Date']>;
-  creator: User;
-  creatorId: Scalars['Int'];
-  id: Scalars['Int'];
-  points: Scalars['Int'];
-  text: Scalars['String'];
+  id: Scalars['String'];
+  likes: Scalars['Int'];
   title: Scalars['String'];
   updatedAt?: Maybe<Scalars['Date']>;
 };
 
+export type PostAuthor = {
+  __typename?: 'PostAuthor';
+  email: Scalars['String'];
+  id: Scalars['String'];
+  username: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  getPost: Post;
+  getPosts: Array<Post>;
   getUsers: Array<User>;
   me: User;
-  post: Post;
-  posts: Array<Post>;
 };
 
 
-export type QueryPostArgs = {
-  id: Scalars['ID'];
+export type QueryGetPostArgs = {
+  id: Scalars['String'];
 };
 
 
-export type QueryPostsArgs = {
-  cursor?: InputMaybe<Scalars['String']>;
-  limit: Scalars['Int'];
+export type QueryGetPostsArgs = {
+  inputs: GetPostsRequestBody;
 };
 
-export type Register = {
-  __typename?: 'Register';
-  token: Scalars['String'];
-  user: User;
+export type RegisterRequestBody = {
+  email: Scalars['String'];
+  password: Scalars['String'];
+  username: Scalars['String'];
+};
+
+export type UpdatePostRequestBody = {
+  authorId: Scalars['String'];
+  content: Scalars['String'];
+  likes: Scalars['Int'];
+  title: Scalars['String'];
 };
 
 export type User = {
   __typename?: 'User';
   createdAt?: Maybe<Scalars['Date']>;
-  id: Scalars['Int'];
+  email: Scalars['String'];
+  id: Scalars['String'];
   updatedAt?: Maybe<Scalars['Date']>;
-  username: Scalars['String'];
-};
-
-export type UserInputs = {
-  password: Scalars['String'];
   username: Scalars['String'];
 };
 
@@ -177,32 +198,48 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  AuthResponse: ResolverTypeWrapper<AuthResponse>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  CreatePostRequestBody: CreatePostRequestBody;
   Date: ResolverTypeWrapper<Scalars['Date']>;
+  GetPostsRequestBody: GetPostsRequestBody;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  LoginRequestBody: LoginRequestBody;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
+  PostAuthor: ResolverTypeWrapper<PostAuthor>;
   Query: ResolverTypeWrapper<{}>;
-  Register: ResolverTypeWrapper<Register>;
+  RegisterRequestBody: RegisterRequestBody;
   String: ResolverTypeWrapper<Scalars['String']>;
+  UpdatePostRequestBody: UpdatePostRequestBody;
   User: ResolverTypeWrapper<User>;
-  UserInputs: UserInputs;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  AuthResponse: AuthResponse;
   Boolean: Scalars['Boolean'];
+  CreatePostRequestBody: CreatePostRequestBody;
   Date: Scalars['Date'];
+  GetPostsRequestBody: GetPostsRequestBody;
   ID: Scalars['ID'];
   Int: Scalars['Int'];
+  LoginRequestBody: LoginRequestBody;
   Mutation: {};
   Post: Post;
+  PostAuthor: PostAuthor;
   Query: {};
-  Register: Register;
+  RegisterRequestBody: RegisterRequestBody;
   String: Scalars['String'];
+  UpdatePostRequestBody: UpdatePostRequestBody;
   User: User;
-  UserInputs: UserInputs;
+}>;
+
+export type AuthResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['AuthResponse'] = ResolversParentTypes['AuthResponse']> = ResolversObject<{
+  accessToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -210,52 +247,55 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 }
 
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'text' | 'title'>>;
-  deletePost?: Resolver<ResolversTypes['ID'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
-  login?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
-  register?: Resolver<ResolversTypes['Register'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
-  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'creatorId' | 'id' | 'points' | 'text' | 'title'>>;
+  createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'inputs'>>;
+  deletePost?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  login?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
+  register?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
+  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'inputs'>>;
 }>;
 
 export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
+  author?: Resolver<ResolversTypes['PostAuthor'], ParentType, ContextType>;
+  authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  creator?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  creatorId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  points?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
-  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
-  posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryPostsArgs, 'limit'>>;
+export type PostAuthorResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PostAuthor'] = ResolversParentTypes['PostAuthor']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type RegisterResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Register'] = ResolversParentTypes['Register']> = ResolversObject<{
-  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  getPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
+  getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsArgs, 'inputs'>>;
+  getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
 }>;
 
 export type UserResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = MyContext> = ResolversObject<{
+  AuthResponse?: AuthResponseResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
+  PostAuthor?: PostAuthorResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  Register?: RegisterResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;
 
