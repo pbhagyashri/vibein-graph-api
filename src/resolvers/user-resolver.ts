@@ -5,37 +5,37 @@ export const userResolver: Resolvers = {
 		getUsers: async (_, __, { dataSources: { userApi } }): Promise<User[]> => {
 			try {
 				const user = await userApi.getUsers();
-				console.log('user', user);
 				return user.record;
 			} catch (err) {
 				return err;
 			}
 		},
-		// me: async (_, __, { dataSources: { userApi } }) => {
-		// 	try {
-		// 		return userApi.me();
-		// 	} catch (err) {
-		// 		return err;
-		// 	}
-		// },
+
+		me: async (_, __, { dataSources: { userApi, token } }): Promise<User> => {
+			try {
+				return userApi.me(token);
+			} catch (err) {
+				return err;
+			}
+		},
 	},
 
 	Mutation: {
-		// register: async (
-		// 	_,
-		// 	{ inputs: { username, password } },
-		// 	{ dataSources: { userApi } }
-		// ) => {
-		// 	try {
-		// 		return userApi.register(username, password);
-		// 	} catch (err) {
-		// 		return err;
-		// 	}
-		// },
-		// login: async (
-		// 	_,
-		// 	{ inputs: { username, password } },
-		// 	{ dataSources: { userApi } }
-		// ) => await userApi.login(username, password),
+		createPost: async (_, { inputs: { title, content, authorId } }, { dataSources: { userApi, token } }) => {
+			try {
+				return await userApi.createPost({ title, content, authorId }, token);
+			} catch (err) {
+				return err;
+			}
+		},
+		updatePost: async (_, { inputs: { id, postId, title, content } }, { dataSources: { userApi, token } }) => {
+			try {
+				const updated = await userApi.updatePost({ id, postId, title, content }, token);
+
+				return updated;
+			} catch (error) {
+				return error;
+			}
+		},
 	},
 };

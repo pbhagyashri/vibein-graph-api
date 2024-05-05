@@ -17,6 +17,12 @@ type Post {
 	updatedAt: Date
 }
 
+type paginationInfo {
+	posts: [Post!]!
+	hasNextPage: Boolean!
+	hasPreviousPage: Boolean!
+}
+
 type User {
 	id: String!
 	username: String!
@@ -48,30 +54,36 @@ input CreatePostRequestBody {
 }
 
 input UpdatePostRequestBody {
-	title: String!
-	content: String!
-	authorId: String!
-	likes: Int!
+	title: String
+	content: String
+	id: String!
+	postId: String!
+}
+
+input Cursor {
+	id: String!
+	createdAt: Date!
 }
 
 input GetPostsRequestBody {
-	limit: String!
-	cursor: String
+	limit: Int!
+	cursor: Cursor
 }
 
 type Query {
-	getPosts(inputs: GetPostsRequestBody!): [Post!]!
+	getPosts(inputs: GetPostsRequestBody!): paginationInfo!
 	getPost(id: String!): Post!
 	getUsers: [User!]!
 	me: User!
 }
 
 type Mutation {
-	createPost(inputs: CreatePostRequestBody!): Post!
-	updatePost(inputs: UpdatePostRequestBody!): Post!
-	deletePost: ID!
 	register(inputs: RegisterRequestBody!): AuthResponse!
 	login(inputs: LoginRequestBody!): AuthResponse!
+	createPost(inputs: CreatePostRequestBody!): Post!
+	updatePost(inputs: UpdatePostRequestBody!): Post!
+	# likePost(inputs: {})
+	deletePost(id: String!): String!
 }
 
 # Cursor based pagination with GraphQL blog post

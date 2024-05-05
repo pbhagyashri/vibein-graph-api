@@ -5,6 +5,148 @@
 
 
 export interface paths {
+  "/authors/{authorId}/posts": {
+    /** @description Get users posts */
+    get: {
+      parameters: {
+        path: {
+          authorId: string;
+        };
+      };
+      responses: {
+        /** @description A successful response */
+        200: {
+          content: {
+            "application/json": components["schemas"]["Posts"];
+          };
+        };
+        /** @description Could not get users */
+        400: {
+          content: never;
+        };
+      };
+    };
+    /** @description Create a new post */
+    post: {
+      parameters: {
+        path: {
+          authorId: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            /** @default New Post */
+            title: string;
+            /** @default This is a new post */
+            content: string;
+          };
+        };
+      };
+      responses: {
+        /** @description A successful response */
+        200: {
+          content: {
+            "application/json": components["schemas"]["Post"];
+          };
+        };
+        /** @description Could not get posts */
+        400: {
+          content: never;
+        };
+      };
+    };
+  };
+  "/authors/{authorId}/posts/{postId}": {
+    /** @description Get Authors Posts */
+    get: {
+      parameters: {
+        path: {
+          authorId: string;
+          postId: string;
+        };
+      };
+      responses: {
+        /** @description A successful response */
+        200: {
+          content: {
+            "application/json": components["schemas"]["Posts"];
+          };
+        };
+        /** @description Could not get users */
+        400: {
+          content: never;
+        };
+      };
+    };
+    /** @description Delete post */
+    delete: {
+      parameters: {
+        path: {
+          authorId: string;
+          postId: string;
+        };
+      };
+      responses: {
+        /** @description Post deleted successfully */
+        200: {
+          content: never;
+        };
+        /** @description Could not get posts */
+        400: {
+          content: never;
+        };
+      };
+    };
+    /** @description Update post */
+    patch: {
+      parameters: {
+        path: {
+          authorId: string;
+          postId: string;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            /** @default Update Title Again */
+            title?: string;
+            /** @default Update Content Again */
+            content?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description A successful response */
+        200: {
+          content: {
+            "application/json": components["schemas"]["Post"];
+          };
+        };
+        /** @description Could not get posts */
+        400: {
+          content: never;
+        };
+      };
+    };
+  };
+  "/me": {
+    /** @description Get current logged in user */
+    get: {
+      responses: {
+        /** @description A successful response */
+        200: {
+          content: {
+            "application/json": components["schemas"]["User"];
+          };
+        };
+        /** @description Could not get users */
+        400: {
+          content: never;
+        };
+      };
+    };
+  };
   "/register": {
     /** @description Register a new user */
     post: {
@@ -12,11 +154,11 @@ export interface paths {
       requestBody: {
         content: {
           "application/json": {
-            /** @default ganesh@test.com */
+            /** @default reva@test.com */
             email: string;
-            /** @default ganesh */
+            /** @default reva */
             password: string;
-            /** @default ganesh */
+            /** @default reva */
             username: string;
           };
         };
@@ -42,9 +184,9 @@ export interface paths {
       requestBody: {
         content: {
           "application/json": {
-            /** @default ganesh@test.com */
+            /** @default reva@test.com */
             email: string;
-            /** @default ganesh */
+            /** @default reva */
             password: string;
           };
         };
@@ -89,15 +231,30 @@ export interface paths {
       };
     };
   };
-  "/posts?cursor={cursor}&limit={limit}": {
+  "/refresh-token": {
+    /** @description Returns an access token upon successful validation of the refresh token */
+    get: {
+      responses: {
+        /** @description A successful response */
+        200: {
+          content: {
+            "application/json": string;
+          };
+        };
+        /** @description Invalid status value */
+        400: {
+          content: never;
+        };
+      };
+    };
+  };
+  "/posts?limit={limit}": {
     /** @description Get all posts */
     get: {
       parameters: {
         query: {
-          /** @description description regarding limit */
+          /** @description limits the number of posts returned */
           limit: string;
-          /** @description description regarding limit */
-          cursor?: string;
         };
       };
       responses: {
@@ -114,18 +271,21 @@ export interface paths {
       };
     };
   };
-  "/posts": {
-    /** @description Create a new post */
-    post: {
-      requestBody: {
-        content: {
-          "application/json": {
-            /** @default New Post */
-            title: string;
-            /** @default This is a new post */
-            content: string;
-            /** @default 79856e58-eaa8-4ee4-86dd-d78275e78b6e */
-            authorId: string;
+  "/posts?cursor[id]={id}%[createdAt]={createdAt}&limit={limit}": {
+    /** @description Get all posts */
+    get: {
+      parameters: {
+        query: {
+          /** @description limits the number of posts returned */
+          limit: number;
+          cursor?: {
+            /** @default 55163961-1d19-46bb-9347-993ba9740a69 */
+            id?: string;
+            /**
+             * Format: date-time
+             * @default 2024-02-23T18:38:45.472Z
+             */
+            createdAt?: string;
           };
         };
       };
@@ -133,7 +293,7 @@ export interface paths {
         /** @description A successful response */
         200: {
           content: {
-            "application/json": components["schemas"]["Post"];
+            "application/json": components["schemas"]["Posts"];
           };
         };
         /** @description Could not get posts */
@@ -164,41 +324,26 @@ export interface paths {
         };
       };
     };
-    /** @description Delete post */
-    delete: {
-      parameters: {
-        path: {
-          id: string;
+  };
+  "/posts": {
+    /** @description Add likes to a post */
+    patch: {
+      requestBody: {
+        content: {
+          "application/json": {
+            /** @default b8e61310-69d6-4c7a-a6de-003f725463dc */
+            userId: string;
+            /** @default 60255cf6-43e3-4734-86c7-a4f8ddb018fb */
+            postId: string;
+          };
         };
       };
       responses: {
-        /** @description Post deleted successfully */
+        /** @description Post liked successfully */
         200: {
           content: never;
         };
         /** @description Could not get posts */
-        400: {
-          content: never;
-        };
-      };
-    };
-  };
-  "/users/{id}/posts": {
-    /** @description Get users posts */
-    get: {
-      parameters: {
-        path: {
-          undefined: string;
-        };
-      };
-      responses: {
-        /** @description A successful response */
-        200: {
-          content: {
-            "application/json": components["schemas"]["Posts"];
-          };
-        };
-        /** @description Could not get users */
         400: {
           content: never;
         };
@@ -220,24 +365,29 @@ export interface components {
         updatedAt?: string;
       };
       accessToken: string;
+      /** @default 200 */
+      status?: number;
     };
     Posts: {
       record: {
-          id: string;
-          title: string;
-          content: string;
-          likes: number;
-          authorId: string;
-          createdAt?: string;
-          updatedAt?: string;
-          author: {
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+        posts: {
             id: string;
-            username: string;
-            email: string;
-          };
-        }[];
+            title: string;
+            content: string;
+            likes: number;
+            authorId: string;
+            createdAt?: string;
+            author: {
+              id: string;
+              username: string;
+              email: string;
+            };
+          }[];
+      };
       /** @default 200 */
-      status: number;
+      status?: number;
     };
     Post: {
       record: {

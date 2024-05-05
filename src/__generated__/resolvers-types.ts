@@ -28,9 +28,14 @@ export type CreatePostRequestBody = {
   title: Scalars['String'];
 };
 
+export type Cursor = {
+  createdAt: Scalars['Date'];
+  id: Scalars['String'];
+};
+
 export type GetPostsRequestBody = {
-  cursor?: InputMaybe<Scalars['String']>;
-  limit: Scalars['String'];
+  cursor?: InputMaybe<Cursor>;
+  limit: Scalars['Int'];
 };
 
 export type LoginRequestBody = {
@@ -41,7 +46,7 @@ export type LoginRequestBody = {
 export type Mutation = {
   __typename?: 'Mutation';
   createPost: Post;
-  deletePost: Scalars['ID'];
+  deletePost: Scalars['String'];
   login: AuthResponse;
   register: AuthResponse;
   updatePost: Post;
@@ -50,6 +55,11 @@ export type Mutation = {
 
 export type MutationCreatePostArgs = {
   inputs: CreatePostRequestBody;
+};
+
+
+export type MutationDeletePostArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -89,7 +99,7 @@ export type PostAuthor = {
 export type Query = {
   __typename?: 'Query';
   getPost: Post;
-  getPosts: Array<Post>;
+  getPosts: PaginationInfo;
   getUsers: Array<User>;
   me: User;
 };
@@ -111,10 +121,10 @@ export type RegisterRequestBody = {
 };
 
 export type UpdatePostRequestBody = {
-  authorId: Scalars['String'];
-  content: Scalars['String'];
-  likes: Scalars['Int'];
-  title: Scalars['String'];
+  content?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  postId: Scalars['String'];
+  title?: InputMaybe<Scalars['String']>;
 };
 
 export type User = {
@@ -124,6 +134,13 @@ export type User = {
   id: Scalars['String'];
   updatedAt?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
+};
+
+export type PaginationInfo = {
+  __typename?: 'paginationInfo';
+  hasNextPage: Scalars['Boolean'];
+  hasPreviousPage: Scalars['Boolean'];
+  posts: Array<Post>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -201,9 +218,9 @@ export type ResolversTypes = ResolversObject<{
   AuthResponse: ResolverTypeWrapper<AuthResponse>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CreatePostRequestBody: CreatePostRequestBody;
+  Cursor: Cursor;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   GetPostsRequestBody: GetPostsRequestBody;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   LoginRequestBody: LoginRequestBody;
   Mutation: ResolverTypeWrapper<{}>;
@@ -214,6 +231,7 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>;
   UpdatePostRequestBody: UpdatePostRequestBody;
   User: ResolverTypeWrapper<User>;
+  paginationInfo: ResolverTypeWrapper<PaginationInfo>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -221,9 +239,9 @@ export type ResolversParentTypes = ResolversObject<{
   AuthResponse: AuthResponse;
   Boolean: Scalars['Boolean'];
   CreatePostRequestBody: CreatePostRequestBody;
+  Cursor: Cursor;
   Date: Scalars['Date'];
   GetPostsRequestBody: GetPostsRequestBody;
-  ID: Scalars['ID'];
   Int: Scalars['Int'];
   LoginRequestBody: LoginRequestBody;
   Mutation: {};
@@ -234,6 +252,7 @@ export type ResolversParentTypes = ResolversObject<{
   String: Scalars['String'];
   UpdatePostRequestBody: UpdatePostRequestBody;
   User: User;
+  paginationInfo: PaginationInfo;
 }>;
 
 export type AuthResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['AuthResponse'] = ResolversParentTypes['AuthResponse']> = ResolversObject<{
@@ -248,7 +267,7 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'inputs'>>;
-  deletePost?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  deletePost?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
   login?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
   register?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
   updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'inputs'>>;
@@ -275,7 +294,7 @@ export type PostAuthorResolvers<ContextType = MyContext, ParentType extends Reso
 
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   getPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
-  getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsArgs, 'inputs'>>;
+  getPosts?: Resolver<ResolversTypes['paginationInfo'], ParentType, ContextType, RequireFields<QueryGetPostsArgs, 'inputs'>>;
   getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
 }>;
@@ -289,6 +308,13 @@ export type UserResolvers<ContextType = MyContext, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PaginationInfoResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['paginationInfo'] = ResolversParentTypes['paginationInfo']> = ResolversObject<{
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = MyContext> = ResolversObject<{
   AuthResponse?: AuthResponseResolvers<ContextType>;
   Date?: GraphQLScalarType;
@@ -297,5 +323,6 @@ export type Resolvers<ContextType = MyContext> = ResolversObject<{
   PostAuthor?: PostAuthorResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  paginationInfo?: PaginationInfoResolvers<ContextType>;
 }>;
 

@@ -29,17 +29,15 @@ const main = async () => {
 	await server.start();
 
 	app.use(
-		'/',
+		'/graphql',
 		cors<cors.CorsRequest>({
 			credentials: true,
-			origin: ['http://localhost:4000', 'http://localhost:3000'],
+			origin: ['http://localhost:3000'],
 		}),
 		bodyParser.json(),
 		expressMiddleware(server, {
 			context: async ({ req, res }) => ({
 				dataSources: {
-					req,
-					res,
 					token: req.headers.authorization,
 					postApi: new PostsAPI(),
 					userApi: new UserAPI(),

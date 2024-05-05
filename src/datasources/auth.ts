@@ -26,6 +26,8 @@ export class AuthAPI extends RESTDataSource {
 				body: { email, password },
 			});
 
+			console.log('resolver', { user });
+
 			return user;
 		} catch (error) {
 			return error;
