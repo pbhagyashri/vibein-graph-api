@@ -53,10 +53,20 @@ input CreatePostRequestBody {
 	authorId: String!
 }
 
-input UpdatePostRequestBody {
-	title: String
-	content: String
+type CreatePostResponse {
 	id: String!
+	title: String!
+	content: String!
+	authorId: String!
+	likes: Int!
+	createdAt: Date
+	updatedAt: Date
+}
+
+input UpdatePostRequestBody {
+	title: String!
+	content: String!
+	authorId: String!
 	postId: String!
 }
 
@@ -70,20 +80,48 @@ input GetPostsRequestBody {
 	cursor: Cursor
 }
 
+input GetAuthorPostsByIdRequestBody {
+	authorId: String!
+	postId: String!
+}
+
+input GetAuthorPostsRequestBody {
+	authorId: String!
+	limit: Int!
+	cursor: Cursor
+}
+
+type GetAuthorPostsResponse {
+	id: String!
+	title: String!
+	content: String!
+	authorId: String!
+	likes: Int!
+	createdAt: Date
+	updatedAt: Date
+}
+
+input DeletePostRequestBody {
+	postId: String!
+	authorId: String!
+}
+
 type Query {
-	getPosts(inputs: GetPostsRequestBody!): paginationInfo!
-	getPost(id: String!): Post!
-	getUsers: [User!]!
-	me: User!
+	getPosts(inputs: GetPostsRequestBody!): paginationInfo
+	getPost(id: String!): Post
+	getUsers: [User!]
+	me: User
+	getAuthorPosts(inputs: GetAuthorPostsRequestBody!): [GetAuthorPostsResponse!]
+	getAuthorPostById(inputs: GetAuthorPostsByIdRequestBody!): GetAuthorPostsResponse
 }
 
 type Mutation {
-	register(inputs: RegisterRequestBody!): AuthResponse!
-	login(inputs: LoginRequestBody!): AuthResponse!
-	createPost(inputs: CreatePostRequestBody!): Post!
-	updatePost(inputs: UpdatePostRequestBody!): Post!
+	register(inputs: RegisterRequestBody!): AuthResponse
+	login(inputs: LoginRequestBody!): AuthResponse
+	createPost(inputs: CreatePostRequestBody!): CreatePostResponse
+	updatePost(inputs: UpdatePostRequestBody!): Post
 	# likePost(inputs: {})
-	deletePost(id: String!): String!
+	deletePost(inputs: DeletePostRequestBody!): String
 }
 
 # Cursor based pagination with GraphQL blog post

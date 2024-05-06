@@ -18,6 +18,29 @@ export const userResolver: Resolvers = {
 				return err;
 			}
 		},
+
+		getAuthorPosts: async (_, { inputs: { authorId, cursor, limit } }, { dataSources: { userApi, token } }) => {
+			try {
+				if (!cursor) {
+					const posts = await userApi.getAuthorPosts(authorId, limit, token);
+					console.log({ posts });
+					return posts.posts;
+				}
+
+				const posts = await userApi.getAuthorPosts(authorId, limit, token, cursor);
+				return posts.posts;
+			} catch (err) {
+				return err;
+			}
+		},
+
+		getAuthorPostById: async (_, { inputs: { authorId, postId } }, { dataSources: { userApi, token } }) => {
+			try {
+				return userApi.getAuthorPostById({ authorId, postId }, token);
+			} catch (error) {
+				return error;
+			}
+		},
 	},
 
 	Mutation: {
@@ -28,13 +51,20 @@ export const userResolver: Resolvers = {
 				return err;
 			}
 		},
-		updatePost: async (_, { inputs: { id, postId, title, content } }, { dataSources: { userApi, token } }) => {
+		updatePost: async (_, { inputs: { title, content, authorId, postId } }, { dataSources: { userApi, token } }) => {
 			try {
-				const updated = await userApi.updatePost({ id, postId, title, content }, token);
+				const updated = await userApi.updatePost({ title, content, authorId, postId }, token);
 
 				return updated;
 			} catch (error) {
 				return error;
+			}
+		},
+		deletePost: async (_, { inputs: { postId, authorId } }, { dataSources: { userApi, token } }) => {
+			try {
+				return await userApi.deletePost(postId, authorId, token);
+			} catch (err) {
+				return err;
 			}
 		},
 	},

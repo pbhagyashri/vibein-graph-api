@@ -2,9 +2,12 @@ import { RESTDataSource } from '@apollo/datasource-rest';
 import { User } from 'src/__generated__/resolvers-types';
 import {
 	CreatePostRequestBody,
+	CreatePostPathParameter,
 	CreatePostResponseBody,
 	UpdatePostPathParameter,
 	UpdatePostRequestBody,
+	GetAuthorPostByIdPathParameter,
+	Cursor,
 } from 'src/types';
 
 export class UserAPI extends RESTDataSource {
@@ -27,12 +30,12 @@ export class UserAPI extends RESTDataSource {
 		return users;
 	}
 
-	async me(token: string | undefined): Promise<User> {
-		// const headers = this.getHeaders(token);
-
+	async me(token: string): Promise<User> {
+		const headers = this.getHeaders(token);
+		console.log('headers', headers);
 		try {
 			const userRecord = await this.get('me', {
-				// headers,
+				headers,
 			});
 
 			return userRecord.record;
@@ -42,30 +45,68 @@ export class UserAPI extends RESTDataSource {
 	}
 
 	async createPost(
-		{ id, title, content, authorId }: CreatePostRequestBody,
-		token?: string,
+		{ title, content, authorId }: CreatePostRequestBody & CreatePostPathParameter,
+		token: string,
 	): Promise<CreatePostResponseBody> {
-		const headers = this.getHeaders(token || this.token);
+		const headers = this.getHeaders(token);
 
 		try {
-			const response = await this.post(`users/${authorId}/posts`, { headers, body: { title, content, authorId } });
+			const response = await this.post(`authors/${authorId}/posts`, {
+				headers: headers,
+				body: { title, content },
+			});
 			return response.record;
 		} catch (error) {
 			return error;
 		}
 	}
 
-	async updatePost({ id, postId, title, content }: UpdatePostPathParameter & UpdatePostRequestBody, token?: string) {
-		// const headers = this.getHeaders(token);
+	async updatePost(
+		{ title, content, authorId, postId }: UpdatePostPathParameter & UpdatePostRequestBody,
+		token: string,
+	) {
+		try {
+			const updatedPost = await this.patch(`/authors/${authorId}/posts/${postId}`, {
+				headers: this.getHeaders(token),
+				body: {
+					title,
+					content,
+				},
+			});
 
-		const updatedPost = await this.patch(`/users/${id}/posts/${postId}`, {
-			// headers,
-			body: {
-				title,
-				content,
+			return updatedPost.record;
+		} catch (error) {
+			return error;
+		}
+	}
+
+	async deletePost(postId: string, authorId: string, token: string) {
+		try {
+			await this.delete(`/authors/${authorId}/posts/${postId}`, {
+				headers: this.getHeaders(token),
+			});
+
+			return 'Post deleted';
+		} catch (error) {
+			return error;
+		}
+	}
+
+	async getAuthorPosts(authorId: string, limit: Number, token: string, cursor?: Cursor) {
+		const posts = await this.get(`authors/${authorId}/posts`, {
+			params: {
+				cursor: JSON.stringify(cursor),
+				limit: limit?.toString(),
 			},
+			headers: this.getHeaders(token),
 		});
+		return posts;
+	}
 
-		return updatedPost.record;
+	async getAuthorPostById({ authorId, postId }: GetAuthorPostByIdPathParameter, token: string) {
+		const post = await this.get(`authors/${authorId}/posts/${postId}`, {
+			headers: this.getHeaders(token),
+		});
+		return post;
 	}
 }

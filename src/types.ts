@@ -3,7 +3,7 @@ import { UserAPI, PostsAPI, AuthAPI } from './datasources';
 
 export interface MyContext {
 	dataSources: {
-		token?: string;
+		token: string;
 		postApi: PostsAPI;
 		userApi: UserAPI;
 		authApi: AuthAPI;
@@ -16,15 +16,21 @@ export type Cursor = {
 	createdAt: string;
 };
 
-export type GetPostsRequestBody =
+export type GetPostsPathParameters =
 	paths['/posts?cursor[id]={id}%[createdAt]={createdAt}&limit={limit}']['get']['parameters']['query'];
 export type GetPostsResponseBody =
 	paths['/posts?cursor[id]={id}%[createdAt]={createdAt}&limit={limit}']['get']['responses']['200']['content']['application/json'];
+
 export type GetPostResponseBody = paths['/posts/{id}']['get']['responses']['200']['content']['application/json'];
+export type GetPostPathParameters = paths['/posts/{id}']['get']['parameters']['path'];
+
+export type CreatePostPathParameter = paths['/authors/{authorId}/posts']['post']['parameters']['path'];
 export type CreatePostRequestBody =
 	paths['/authors/{authorId}/posts']['post']['requestBody']['content']['application/json'];
 export type CreatePostResponseBody =
 	paths['/authors/{authorId}/posts']['post']['responses']['200']['content']['application/json'];
+
+// author posts
 export type GetAuthorPostsPathParameter = paths['/authors/{authorId}/posts']['get']['parameters']['path'];
 export type GetAuthorPostsResponseBody =
 	paths['/authors/{authorId}/posts']['get']['responses']['200']['content']['application/json'];

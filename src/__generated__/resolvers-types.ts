@@ -28,9 +28,47 @@ export type CreatePostRequestBody = {
   title: Scalars['String'];
 };
 
+export type CreatePostResponse = {
+  __typename?: 'CreatePostResponse';
+  authorId: Scalars['String'];
+  content: Scalars['String'];
+  createdAt?: Maybe<Scalars['Date']>;
+  id: Scalars['String'];
+  likes: Scalars['Int'];
+  title: Scalars['String'];
+  updatedAt?: Maybe<Scalars['Date']>;
+};
+
 export type Cursor = {
   createdAt: Scalars['Date'];
   id: Scalars['String'];
+};
+
+export type DeletePostRequestBody = {
+  authorId: Scalars['String'];
+  postId: Scalars['String'];
+};
+
+export type GetAuthorPostsByIdRequestBody = {
+  authorId: Scalars['String'];
+  postId: Scalars['String'];
+};
+
+export type GetAuthorPostsRequestBody = {
+  authorId: Scalars['String'];
+  cursor?: InputMaybe<Cursor>;
+  limit: Scalars['Int'];
+};
+
+export type GetAuthorPostsResponse = {
+  __typename?: 'GetAuthorPostsResponse';
+  authorId: Scalars['String'];
+  content: Scalars['String'];
+  createdAt?: Maybe<Scalars['Date']>;
+  id: Scalars['String'];
+  likes: Scalars['Int'];
+  title: Scalars['String'];
+  updatedAt?: Maybe<Scalars['Date']>;
 };
 
 export type GetPostsRequestBody = {
@@ -45,11 +83,11 @@ export type LoginRequestBody = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createPost: Post;
-  deletePost: Scalars['String'];
-  login: AuthResponse;
-  register: AuthResponse;
-  updatePost: Post;
+  createPost?: Maybe<CreatePostResponse>;
+  deletePost?: Maybe<Scalars['String']>;
+  login?: Maybe<AuthResponse>;
+  register?: Maybe<AuthResponse>;
+  updatePost?: Maybe<Post>;
 };
 
 
@@ -59,7 +97,7 @@ export type MutationCreatePostArgs = {
 
 
 export type MutationDeletePostArgs = {
-  id: Scalars['String'];
+  inputs: DeletePostRequestBody;
 };
 
 
@@ -98,10 +136,22 @@ export type PostAuthor = {
 
 export type Query = {
   __typename?: 'Query';
-  getPost: Post;
-  getPosts: PaginationInfo;
-  getUsers: Array<User>;
-  me: User;
+  getAuthorPostById?: Maybe<GetAuthorPostsResponse>;
+  getAuthorPosts?: Maybe<Array<GetAuthorPostsResponse>>;
+  getPost?: Maybe<Post>;
+  getPosts?: Maybe<PaginationInfo>;
+  getUsers?: Maybe<Array<User>>;
+  me?: Maybe<User>;
+};
+
+
+export type QueryGetAuthorPostByIdArgs = {
+  inputs: GetAuthorPostsByIdRequestBody;
+};
+
+
+export type QueryGetAuthorPostsArgs = {
+  inputs: GetAuthorPostsRequestBody;
 };
 
 
@@ -121,10 +171,10 @@ export type RegisterRequestBody = {
 };
 
 export type UpdatePostRequestBody = {
-  content?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
+  authorId: Scalars['String'];
+  content: Scalars['String'];
   postId: Scalars['String'];
-  title?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
 };
 
 export type User = {
@@ -218,8 +268,13 @@ export type ResolversTypes = ResolversObject<{
   AuthResponse: ResolverTypeWrapper<AuthResponse>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CreatePostRequestBody: CreatePostRequestBody;
+  CreatePostResponse: ResolverTypeWrapper<CreatePostResponse>;
   Cursor: Cursor;
   Date: ResolverTypeWrapper<Scalars['Date']>;
+  DeletePostRequestBody: DeletePostRequestBody;
+  GetAuthorPostsByIdRequestBody: GetAuthorPostsByIdRequestBody;
+  GetAuthorPostsRequestBody: GetAuthorPostsRequestBody;
+  GetAuthorPostsResponse: ResolverTypeWrapper<GetAuthorPostsResponse>;
   GetPostsRequestBody: GetPostsRequestBody;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   LoginRequestBody: LoginRequestBody;
@@ -239,8 +294,13 @@ export type ResolversParentTypes = ResolversObject<{
   AuthResponse: AuthResponse;
   Boolean: Scalars['Boolean'];
   CreatePostRequestBody: CreatePostRequestBody;
+  CreatePostResponse: CreatePostResponse;
   Cursor: Cursor;
   Date: Scalars['Date'];
+  DeletePostRequestBody: DeletePostRequestBody;
+  GetAuthorPostsByIdRequestBody: GetAuthorPostsByIdRequestBody;
+  GetAuthorPostsRequestBody: GetAuthorPostsRequestBody;
+  GetAuthorPostsResponse: GetAuthorPostsResponse;
   GetPostsRequestBody: GetPostsRequestBody;
   Int: Scalars['Int'];
   LoginRequestBody: LoginRequestBody;
@@ -261,16 +321,38 @@ export type AuthResponseResolvers<ContextType = MyContext, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CreatePostResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['CreatePostResponse'] = ResolversParentTypes['CreatePostResponse']> = ResolversObject<{
+  authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
 
+export type GetAuthorPostsResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['GetAuthorPostsResponse'] = ResolversParentTypes['GetAuthorPostsResponse']> = ResolversObject<{
+  authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MutationResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'inputs'>>;
-  deletePost?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
-  login?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
-  register?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
-  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'inputs'>>;
+  createPost?: Resolver<Maybe<ResolversTypes['CreatePostResponse']>, ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'inputs'>>;
+  deletePost?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'inputs'>>;
+  login?: Resolver<Maybe<ResolversTypes['AuthResponse']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'inputs'>>;
+  register?: Resolver<Maybe<ResolversTypes['AuthResponse']>, ParentType, ContextType, RequireFields<MutationRegisterArgs, 'inputs'>>;
+  updatePost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'inputs'>>;
 }>;
 
 export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
@@ -293,10 +375,12 @@ export type PostAuthorResolvers<ContextType = MyContext, ParentType extends Reso
 }>;
 
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  getPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
-  getPosts?: Resolver<ResolversTypes['paginationInfo'], ParentType, ContextType, RequireFields<QueryGetPostsArgs, 'inputs'>>;
-  getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
-  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  getAuthorPostById?: Resolver<Maybe<ResolversTypes['GetAuthorPostsResponse']>, ParentType, ContextType, RequireFields<QueryGetAuthorPostByIdArgs, 'inputs'>>;
+  getAuthorPosts?: Resolver<Maybe<Array<ResolversTypes['GetAuthorPostsResponse']>>, ParentType, ContextType, RequireFields<QueryGetAuthorPostsArgs, 'inputs'>>;
+  getPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
+  getPosts?: Resolver<Maybe<ResolversTypes['paginationInfo']>, ParentType, ContextType, RequireFields<QueryGetPostsArgs, 'inputs'>>;
+  getUsers?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 }>;
 
 export type UserResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
@@ -317,7 +401,9 @@ export type PaginationInfoResolvers<ContextType = MyContext, ParentType extends 
 
 export type Resolvers<ContextType = MyContext> = ResolversObject<{
   AuthResponse?: AuthResponseResolvers<ContextType>;
+  CreatePostResponse?: CreatePostResponseResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  GetAuthorPostsResponse?: GetAuthorPostsResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   PostAuthor?: PostAuthorResolvers<ContextType>;

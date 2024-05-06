@@ -23,32 +23,4 @@ export const postResolver: Resolvers = {
 			}
 		},
 	},
-
-	Mutation: {
-		// createPost: async (_, { inputs: { title, content, authorId } }, { dataSources: { postApi, token } }) => {
-		// 	try {
-		// 		return await postApi.createPost({ title, content, authorId }, token);
-		// 	} catch (err) {
-		// 		return err;
-		// 	}
-		// },
-
-		// updatePost: async (_, { id, title, text, creatorId, points }, { dataSources: { postApi, token } }) => {
-		// 	try {
-		// 		if (!token) {
-		// 			return new Error('Not authenticated, please login');
-		// 		}
-		// 		return await postApi.updatePost(parseInt(id), title, text, creatorId, points);
-		// 	} catch (err) {
-		// 		return err;
-		// 	}
-		// },
-		deletePost: async (_, { id }, { dataSources: { postApi, token } }) => {
-			try {
-				return await postApi.deletePost(id, token);
-			} catch (err) {
-				return err;
-			}
-		},
-	},
 };

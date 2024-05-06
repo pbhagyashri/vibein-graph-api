@@ -1,6 +1,6 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
 
-import { GetPostResponseBody, GetPostsResponseBody, GetPostsRequestBody } from '../types';
+import { GetPostResponseBody, GetPostsResponseBody, GetPostsPathParameters } from '../types';
 
 export class PostsAPI extends RESTDataSource {
 	private token: string;
@@ -17,7 +17,10 @@ export class PostsAPI extends RESTDataSource {
 		};
 	}
 
-	async getAllPosts({ limit, cursor }: GetPostsRequestBody, token?: string): Promise<GetPostsResponseBody['record']> {
+	async getAllPosts(
+		{ limit, cursor }: GetPostsPathParameters,
+		token?: string,
+	): Promise<GetPostsResponseBody['record']> {
 		const headers = this.getHeaders(token || this.token);
 
 		try {
@@ -47,6 +50,7 @@ export class PostsAPI extends RESTDataSource {
 				},
 				headers,
 			});
+
 			return responses?.record;
 		} catch (error) {
 			return error;
@@ -58,20 +62,11 @@ export class PostsAPI extends RESTDataSource {
 
 		try {
 			const response: GetPostResponseBody = await this.get(`posts/${id}`, { headers });
-			return response?.record;
-		} catch (error) {
-			return error;
-		}
-	}
-
-	async deletePost(id: string, token?: string): Promise<String> {
-		try {
-			await this.delete(`posts/${id}`, {
-				headers: {
-					authorization: token || this.token,
-				},
-			});
-			return 'Post deleted successfully';
+			const post = response?.record;
+			if (!post) {
+				throw new Error('Post not found');
+			}
+			return post;
 		} catch (error) {
 			return error;
 		}

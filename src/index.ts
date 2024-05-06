@@ -36,9 +36,9 @@ const main = async () => {
 		}),
 		bodyParser.json(),
 		expressMiddleware(server, {
-			context: async ({ req, res }) => ({
+			context: async ({ req }) => ({
 				dataSources: {
-					token: req.headers.authorization,
+					token: req.headers.authorization || '',
 					postApi: new PostsAPI(),
 					userApi: new UserAPI(),
 					authApi: new AuthAPI(),
