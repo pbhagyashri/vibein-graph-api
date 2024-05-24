@@ -22,6 +22,17 @@ export type AuthResponse = {
   user: User;
 };
 
+export type AuthorPost = {
+  __typename?: 'AuthorPost';
+  authorId: Scalars['String'];
+  content: Scalars['String'];
+  createdAt?: Maybe<Scalars['Date']>;
+  id: Scalars['String'];
+  likes: Scalars['Int'];
+  title: Scalars['String'];
+  updatedAt?: Maybe<Scalars['Date']>;
+};
+
 export type CreatePostRequestBody = {
   authorId: Scalars['String'];
   content: Scalars['String'];
@@ -62,13 +73,9 @@ export type GetAuthorPostsRequestBody = {
 
 export type GetAuthorPostsResponse = {
   __typename?: 'GetAuthorPostsResponse';
-  authorId: Scalars['String'];
-  content: Scalars['String'];
-  createdAt?: Maybe<Scalars['Date']>;
-  id: Scalars['String'];
-  likes: Scalars['Int'];
-  title: Scalars['String'];
-  updatedAt?: Maybe<Scalars['Date']>;
+  hasNextPage: Scalars['Boolean'];
+  hasPreviousPage: Scalars['Boolean'];
+  posts: Array<AuthorPost>;
 };
 
 export type GetPostsRequestBody = {
@@ -137,7 +144,7 @@ export type PostAuthor = {
 export type Query = {
   __typename?: 'Query';
   getAuthorPostById?: Maybe<GetAuthorPostsResponse>;
-  getAuthorPosts?: Maybe<Array<GetAuthorPostsResponse>>;
+  getAuthorPosts: GetAuthorPostsResponse;
   getPost?: Maybe<Post>;
   getPosts?: Maybe<PaginationInfo>;
   getUsers?: Maybe<Array<User>>;
@@ -266,6 +273,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   AuthResponse: ResolverTypeWrapper<AuthResponse>;
+  AuthorPost: ResolverTypeWrapper<AuthorPost>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CreatePostRequestBody: CreatePostRequestBody;
   CreatePostResponse: ResolverTypeWrapper<CreatePostResponse>;
@@ -292,6 +300,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   AuthResponse: AuthResponse;
+  AuthorPost: AuthorPost;
   Boolean: Scalars['Boolean'];
   CreatePostRequestBody: CreatePostRequestBody;
   CreatePostResponse: CreatePostResponse;
@@ -321,6 +330,17 @@ export type AuthResponseResolvers<ContextType = MyContext, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type AuthorPostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['AuthorPost'] = ResolversParentTypes['AuthorPost']> = ResolversObject<{
+  authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CreatePostResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['CreatePostResponse'] = ResolversParentTypes['CreatePostResponse']> = ResolversObject<{
   authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -337,13 +357,9 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 }
 
 export type GetAuthorPostsResponseResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['GetAuthorPostsResponse'] = ResolversParentTypes['GetAuthorPostsResponse']> = ResolversObject<{
-  authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  posts?: Resolver<Array<ResolversTypes['AuthorPost']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -376,7 +392,7 @@ export type PostAuthorResolvers<ContextType = MyContext, ParentType extends Reso
 
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   getAuthorPostById?: Resolver<Maybe<ResolversTypes['GetAuthorPostsResponse']>, ParentType, ContextType, RequireFields<QueryGetAuthorPostByIdArgs, 'inputs'>>;
-  getAuthorPosts?: Resolver<Maybe<Array<ResolversTypes['GetAuthorPostsResponse']>>, ParentType, ContextType, RequireFields<QueryGetAuthorPostsArgs, 'inputs'>>;
+  getAuthorPosts?: Resolver<ResolversTypes['GetAuthorPostsResponse'], ParentType, ContextType, RequireFields<QueryGetAuthorPostsArgs, 'inputs'>>;
   getPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
   getPosts?: Resolver<Maybe<ResolversTypes['paginationInfo']>, ParentType, ContextType, RequireFields<QueryGetPostsArgs, 'inputs'>>;
   getUsers?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>;
@@ -401,6 +417,7 @@ export type PaginationInfoResolvers<ContextType = MyContext, ParentType extends 
 
 export type Resolvers<ContextType = MyContext> = ResolversObject<{
   AuthResponse?: AuthResponseResolvers<ContextType>;
+  AuthorPost?: AuthorPostResolvers<ContextType>;
   CreatePostResponse?: CreatePostResponseResolvers<ContextType>;
   Date?: GraphQLScalarType;
   GetAuthorPostsResponse?: GetAuthorPostsResponseResolvers<ContextType>;

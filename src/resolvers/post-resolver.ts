@@ -1,9 +1,10 @@
-import { Resolvers, Post, PaginationInfo } from '../__generated__/resolvers-types';
+import { Resolvers } from '../__generated__/resolvers-types';
 
 export const postResolver: Resolvers = {
 	Query: {
-		getPosts: async (_, { inputs }, { dataSources: { postApi, token } }): Promise<PaginationInfo> => {
+		getPosts: async (_, { inputs }, { dataSources: { postApi, token } }) => {
 			const { limit, cursor } = inputs || {};
+			console.log({ limit, postApi, token });
 
 			try {
 				if (!cursor) {
@@ -15,7 +16,7 @@ export const postResolver: Resolvers = {
 			}
 		},
 
-		getPost: async (_, { id }, { dataSources: { postApi, token } }): Promise<Post> => {
+		getPost: async (_, { id }, { dataSources: { postApi, token } }) => {
 			try {
 				return postApi.getPost(id, token);
 			} catch (err) {
