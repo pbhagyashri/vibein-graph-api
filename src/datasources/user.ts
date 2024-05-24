@@ -6,9 +6,9 @@ import {
 	CreatePostResponseBody,
 	UpdatePostPathParameter,
 	UpdatePostRequestBody,
-	GetAuthorPostByIdPathParameter,
 	Cursor,
-} from 'src/types';
+	GetAuthorPostsResponseBody,
+} from '../types';
 
 export class UserAPI extends RESTDataSource {
 	private token: string;
@@ -32,7 +32,6 @@ export class UserAPI extends RESTDataSource {
 
 	async me(token: string): Promise<User> {
 		const headers = this.getHeaders(token);
-		console.log('headers', headers);
 		try {
 			const userRecord = await this.get('me', {
 				headers,
@@ -92,21 +91,30 @@ export class UserAPI extends RESTDataSource {
 		}
 	}
 
-	async getAuthorPosts(authorId: string, limit: Number, token: string, cursor?: Cursor) {
-		const posts = await this.get(`authors/${authorId}/posts`, {
-			params: {
-				cursor: JSON.stringify(cursor),
-				limit: limit?.toString(),
-			},
-			headers: this.getHeaders(token),
-		});
-		return posts;
+	async getAuthorPosts(
+		authorId: string,
+		limit: Number,
+		token: string,
+		cursor?: Cursor,
+	): Promise<GetAuthorPostsResponseBody> {
+		try {
+			const posts = await this.get(`authors/${authorId}/posts`, {
+				params: {
+					cursor: JSON.stringify(cursor),
+					limit: limit?.toString(),
+				},
+				headers: this.getHeaders(token),
+			});
+			return posts;
+		} catch (error) {
+			return error;
+		}
 	}
 
-	async getAuthorPostById({ authorId, postId }: GetAuthorPostByIdPathParameter, token: string) {
-		const post = await this.get(`authors/${authorId}/posts/${postId}`, {
-			headers: this.getHeaders(token),
-		});
-		return post;
-	}
+	// async getAuthorPostById({ authorId, postId }: GetAuthorPostByIdPathParameter, token: string) {
+	// 	const post = await this.get(`authors/${authorId}/posts/${postId}`, {
+	// 		headers: this.getHeaders(token),
+	// 	});
+	// 	return post;
+	// }
 }

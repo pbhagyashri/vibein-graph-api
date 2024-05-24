@@ -1,4 +1,4 @@
-import { Resolvers, User } from '../__generated__/resolvers-types';
+import { GetAuthorPostsResponse, Resolvers, User } from '../__generated__/resolvers-types';
 
 export const userResolver: Resolvers = {
 	Query: {
@@ -18,29 +18,40 @@ export const userResolver: Resolvers = {
 				return err;
 			}
 		},
-
-		getAuthorPosts: async (_, { inputs: { authorId, cursor, limit } }, { dataSources: { userApi, token } }) => {
+		getAuthorPosts: async (
+			_,
+			{ inputs: { authorId, cursor, limit } },
+			{ dataSources: { userApi, token } },
+		): Promise<GetAuthorPostsResponse> => {
+			console.log({ authorId, cursor, limit });
 			try {
 				if (!cursor) {
-					const posts = await userApi.getAuthorPosts(authorId, limit, token);
-					console.log({ posts });
-					return posts.posts;
+					const response = await userApi.getAuthorPosts(authorId, limit, token);
+					return {
+						posts: response.record.record || [],
+						hasNextPage: response.record.hasNextPage,
+						hasPreviousPage: response.record.hasPreviousPage,
+					};
 				}
 
-				const posts = await userApi.getAuthorPosts(authorId, limit, token, cursor);
-				return posts.posts;
+				const response = await userApi.getAuthorPosts(authorId, limit, token, cursor);
+				return {
+					posts: response.record.record || [],
+					hasNextPage: response.record.hasNextPage,
+					hasPreviousPage: response.record.hasPreviousPage,
+				};
 			} catch (err) {
 				return err;
 			}
 		},
 
-		getAuthorPostById: async (_, { inputs: { authorId, postId } }, { dataSources: { userApi, token } }) => {
-			try {
-				return userApi.getAuthorPostById({ authorId, postId }, token);
-			} catch (error) {
-				return error;
-			}
-		},
+		// getAuthorPostById: async (_, { inputs: { authorId, postId } }, { dataSources: { userApi, token } }) => {
+		// 	try {
+		// 		return userApi.getAuthorPostById({ authorId, postId }, token);
+		// 	} catch (error) {
+		// 		return error;
+		// 	}
+		// },
 	},
 
 	Mutation: {

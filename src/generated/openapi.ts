@@ -5,10 +5,17 @@
 
 
 export interface paths {
-  "/authors/{authorId}/posts": {
+  "/authors/{authorId}/posts?limit={limit}": {
     /** @description Get users posts */
     get: {
       parameters: {
+        query: {
+          /**
+           * @description limits the number of posts returned
+           * @default 5
+           */
+          limit: string;
+        };
         path: {
           authorId: string;
         };
@@ -17,7 +24,7 @@ export interface paths {
         /** @description A successful response */
         200: {
           content: {
-            "application/json": components["schemas"]["Posts"];
+            "application/json": components["schemas"]["AuthorPost"];
           };
         };
         /** @description Could not get users */
@@ -26,6 +33,8 @@ export interface paths {
         };
       };
     };
+  };
+  "/authors/{authorId}/posts": {
     /** @description Create a new post */
     post: {
       parameters: {
@@ -47,7 +56,7 @@ export interface paths {
         /** @description A successful response */
         200: {
           content: {
-            "application/json": components["schemas"]["Post"];
+            "application/json": components["schemas"]["AuthorPost"];
           };
         };
         /** @description Could not get posts */
@@ -57,20 +66,14 @@ export interface paths {
       };
     };
   };
-  "/authors/{authorId}/posts/{postId}": {
-    /** @description Get Authors Posts */
+  "/me": {
+    /** @description Get current logged in user */
     get: {
-      parameters: {
-        path: {
-          authorId: string;
-          postId: string;
-        };
-      };
       responses: {
         /** @description A successful response */
         200: {
           content: {
-            "application/json": components["schemas"]["Posts"];
+            "application/json": components["schemas"]["User"];
           };
         };
         /** @description Could not get users */
@@ -79,25 +82,8 @@ export interface paths {
         };
       };
     };
-    /** @description Delete post */
-    delete: {
-      parameters: {
-        path: {
-          authorId: string;
-          postId: string;
-        };
-      };
-      responses: {
-        /** @description Post deleted successfully */
-        200: {
-          content: never;
-        };
-        /** @description Could not get posts */
-        400: {
-          content: never;
-        };
-      };
-    };
+  };
+  "/authors/{authorId}/posts/{postId}": {
     /** @description Update post */
     patch: {
       parameters: {
@@ -120,27 +106,10 @@ export interface paths {
         /** @description A successful response */
         200: {
           content: {
-            "application/json": components["schemas"]["Post"];
+            "application/json": components["schemas"]["AuthorPost"];
           };
         };
         /** @description Could not get posts */
-        400: {
-          content: never;
-        };
-      };
-    };
-  };
-  "/me": {
-    /** @description Get current logged in user */
-    get: {
-      responses: {
-        /** @description A successful response */
-        200: {
-          content: {
-            "application/json": components["schemas"]["User"];
-          };
-        };
-        /** @description Could not get users */
         400: {
           content: never;
         };
@@ -261,7 +230,7 @@ export interface paths {
         /** @description A successful response */
         200: {
           content: {
-            "application/json": components["schemas"]["Posts"];
+            "application/json": components["schemas"]["Post"];
           };
         };
         /** @description Could not get posts */
@@ -293,7 +262,7 @@ export interface paths {
         /** @description A successful response */
         200: {
           content: {
-            "application/json": components["schemas"]["Posts"];
+            "application/json": components["schemas"]["Post"];
           };
         };
         /** @description Could not get posts */
@@ -368,44 +337,48 @@ export interface components {
       /** @default 200 */
       status?: number;
     };
-    Posts: {
+    AuthorPost: {
+      /** @default 200 */
+      status: number;
       record: {
-        hasNextPage: boolean;
+        /** @default false */
         hasPreviousPage: boolean;
-        posts: {
+        /** @default false */
+        hasNextPage: boolean;
+        record?: {
             id: string;
             title: string;
             content: string;
             likes: number;
             authorId: string;
             createdAt?: string;
-            author: {
-              id: string;
-              username: string;
-              email: string;
+            updatedAt?: string;
+          }[];
+      };
+    };
+    Post: {
+      /** @default 200 */
+      status?: number;
+      record?: {
+        /** @default false */
+        hasPreviousPage?: boolean;
+        /** @default false */
+        hasNextPage?: boolean;
+        posts?: {
+            id?: string;
+            title?: string;
+            content?: string;
+            likes?: number;
+            authorId?: string;
+            createdAt?: string;
+            updatedAt?: string;
+            author?: {
+              id?: string;
+              username?: string;
+              email?: string;
             };
           }[];
       };
-      /** @default 200 */
-      status?: number;
-    };
-    Post: {
-      record: {
-        id: string;
-        title: string;
-        content: string;
-        likes: number;
-        authorId: string;
-        createdAt?: string;
-        updatedAt?: string;
-        author: {
-          id: string;
-          username: string;
-          email: string;
-        };
-      };
-      /** @default 200 */
-      status: number;
     };
   };
   responses: never;

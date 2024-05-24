@@ -1,4 +1,4 @@
-import { paths } from 'src/generated/openapi';
+import { paths } from './generated/openapi';
 import { UserAPI, PostsAPI, AuthAPI } from './datasources';
 
 export interface MyContext {
@@ -31,12 +31,12 @@ export type CreatePostResponseBody =
 	paths['/authors/{authorId}/posts']['post']['responses']['200']['content']['application/json'];
 
 // author posts
-export type GetAuthorPostsPathParameter = paths['/authors/{authorId}/posts']['get']['parameters']['path'];
+export type GetAuthorPostsPathParameter = paths['/authors/{authorId}/posts?limit={limit}']['get']['parameters']['path'];
 export type GetAuthorPostsResponseBody =
-	paths['/authors/{authorId}/posts']['get']['responses']['200']['content']['application/json'];
-export type GetAuthorPostByIdPathParameter = paths['/authors/{authorId}/posts/{postId}']['get']['parameters']['path'];
-export type GetAuthorPostByIdResponseBody =
-	paths['/authors/{authorId}/posts/{postId}']['get']['responses']['200']['content']['application/json'];
+	paths['/authors/{authorId}/posts?limit={limit}']['get']['responses']['200']['content']['application/json'];
+// export type GetAuthorPostByIdPathParameter = paths['/authors/{authorId}/posts/{postId}']['get']['parameters']['path'];
+// export type GetAuthorPostByIdResponseBody =
+// 	paths['/authors/{authorId}/posts/{postId}']['get']['responses']['200']['content']['application/json'];
 
 // upadate post
 export type UpdatePostPathParameter = paths['/authors/{authorId}/posts/{postId}']['patch']['parameters']['path'];

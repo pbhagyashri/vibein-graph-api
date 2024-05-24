@@ -6,6 +6,16 @@ type PostAuthor {
 	email: String!
 }
 
+type AuthorPost {
+	id: String!
+	title: String!
+	content: String!
+	likes: Int!
+	authorId: String!
+	createdAt: Date
+	updatedAt: Date
+}
+
 type Post {
 	id: String!
 	title: String!
@@ -92,13 +102,9 @@ input GetAuthorPostsRequestBody {
 }
 
 type GetAuthorPostsResponse {
-	id: String!
-	title: String!
-	content: String!
-	authorId: String!
-	likes: Int!
-	createdAt: Date
-	updatedAt: Date
+	hasNextPage: Boolean!
+	hasPreviousPage: Boolean!
+	posts: [AuthorPost!]!
 }
 
 input DeletePostRequestBody {
@@ -111,7 +117,7 @@ type Query {
 	getPost(id: String!): Post
 	getUsers: [User!]
 	me: User
-	getAuthorPosts(inputs: GetAuthorPostsRequestBody!): [GetAuthorPostsResponse!]
+	getAuthorPosts(inputs: GetAuthorPostsRequestBody!): GetAuthorPostsResponse!
 	getAuthorPostById(inputs: GetAuthorPostsByIdRequestBody!): GetAuthorPostsResponse
 }
 

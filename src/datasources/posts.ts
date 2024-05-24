@@ -17,10 +17,7 @@ export class PostsAPI extends RESTDataSource {
 		};
 	}
 
-	async getAllPosts(
-		{ limit, cursor }: GetPostsPathParameters,
-		token?: string,
-	): Promise<GetPostsResponseBody['record']> {
+	async getAllPosts({ limit, cursor }: GetPostsPathParameters, token?: string): Promise<GetPostsResponseBody> {
 		const headers = this.getHeaders(token || this.token);
 
 		try {
@@ -34,7 +31,7 @@ export class PostsAPI extends RESTDataSource {
 					headers,
 				});
 
-				return responses?.record;
+				return responses;
 			}
 
 			// const responses: GetPostsResponseBody = await this.get(`posts?cursor=${cursor}&limit=${limit}`, { headers });
@@ -51,18 +48,18 @@ export class PostsAPI extends RESTDataSource {
 				headers,
 			});
 
-			return responses?.record;
+			return responses;
 		} catch (error) {
 			return error;
 		}
 	}
 
-	async getPost(id: string, token?: string): Promise<GetPostResponseBody['record']> {
+	async getPost(id: string, token?: string): Promise<GetPostResponseBody> {
 		const headers = this.getHeaders(token || this.token);
 
 		try {
 			const response: GetPostResponseBody = await this.get(`posts/${id}`, { headers });
-			const post = response?.record;
+			const post = response;
 			if (!post) {
 				throw new Error('Post not found');
 			}
